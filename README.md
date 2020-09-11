@@ -1,2 +1,2 @@
-# antibody_sim
-Simulation analysis for use of antibody data in stock assessment
+# Using disease antibody data to estimate natural mortality in fisheries stock assessments
+This repo contains R code to run a simulation analysis testing the utility of antibody data within fisheries stock assessement. Included is the model that simulates 'true' epidemiological (e.g. SIR model) and population dynamics, the data generating model, and an integrated age-structured model that fits to the simulated data and estimates annual infection and other population dynamics parameters. Interested users will also need to install Template Model Builder (TMB) to run the analysis. More info to come...

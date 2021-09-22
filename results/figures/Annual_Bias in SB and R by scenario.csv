@@ -1,0 +1,1151 @@
+"scenario","Year","P.SB.above","P.SB.below","P.R.above","P.R.below"
+"Ignore disease",1,0.02,0.98,0.054,0.946
+"Ignore disease",2,0.024,0.976,0.046,0.954
+"Ignore disease",3,0.024,0.976,0.072,0.928
+"Ignore disease",4,0.022,0.978,0.054,0.946
+"Ignore disease",5,0.02,0.98,0.09,0.91
+"Ignore disease",6,0.02,0.98,0.088,0.912
+"Ignore disease",7,0.026,0.974,0.072,0.928
+"Ignore disease",8,0.03,0.97,0.102,0.898
+"Ignore disease",9,0.048,0.952,0.094,0.906
+"Ignore disease",10,0.068,0.932,0.098,0.902
+"Ignore disease",11,0.07,0.93,0.116,0.884
+"Ignore disease",12,0.076,0.924,0.112,0.888
+"Ignore disease",13,0.092,0.908,0.12,0.88
+"Ignore disease",14,0.124,0.876,0.112,0.888
+"Ignore disease",15,0.142,0.858,0.124,0.876
+"Ignore disease",16,0.182,0.818,0.128,0.872
+"Ignore disease",17,0.18,0.82,0.14,0.86
+"Ignore disease",18,0.21,0.79,0.138,0.862
+"Ignore disease",19,0.23,0.77,0.146,0.854
+"Ignore disease",20,0.262,0.738,0.144,0.856
+"Ignore disease",21,0.27,0.73,0.164,0.836
+"Ignore disease",22,0.296,0.704,0.168,0.832
+"Ignore disease",23,0.328,0.672,0.18,0.82
+"Ignore disease",24,0.334,0.666,0.17,0.83
+"Ignore disease",25,0.378,0.622,0.186,0.814
+"Ignore disease",26,0.39,0.61,0.182,0.818
+"Ignore disease",27,0.42,0.58,0.228,0.772
+"Ignore disease",28,0.444,0.556,0.226,0.774
+"Ignore disease",29,0.474,0.526,0.204,0.796
+"Ignore disease",30,0.486,0.514,0.228,0.772
+"Ignore disease",31,0.512,0.488,0.22,0.78
+"Ignore disease",32,0.52,0.48,0.28,0.72
+"Ignore disease",33,0.548,0.452,0.272,0.728
+"Ignore disease",34,0.592,0.408,0.32,0.68
+"Ignore disease",35,0.622,0.378,0.302,0.698
+"Ignore disease",36,0.66,0.34,0.33,0.67
+"Ignore disease",37,0.674,0.326,0.36,0.64
+"Ignore disease",38,0.738,0.262,0.366,0.634
+"Ignore disease",39,0.756,0.244,0.414,0.586
+"Ignore disease",40,0.77,0.23,0.448,0.552
+"Ignore disease",41,0.782,0.218,0.478,0.522
+"Ignore disease",42,0.822,0.178,0.478,0.522
+"Ignore disease",43,0.848,0.152,0.58,0.42
+"Ignore disease",44,0.876,0.124,0.604,0.396
+"Ignore disease",45,0.89,0.11,0.612,0.388
+"Ignore disease",46,0.912,0.088,0.608,0.392
+"Ignore disease",47,0.936,0.064,0.534,0.466
+"Ignore disease",48,0.956,0.044,0.58,0.42
+"Ignore disease",49,0.95,0.05,0.452,0.548
+"Ignore disease",50,0.948,0.052,0.452,0.548
+"Incorporate
+infection
+prevalence",1,0.028,0.972,0.074,0.926
+"Incorporate
+infection
+prevalence",2,0.028,0.972,0.062,0.938
+"Incorporate
+infection
+prevalence",3,0.028,0.972,0.092,0.908
+"Incorporate
+infection
+prevalence",4,0.028,0.972,0.098,0.902
+"Incorporate
+infection
+prevalence",5,0.03,0.97,0.116,0.884
+"Incorporate
+infection
+prevalence",6,0.044,0.956,0.114,0.886
+"Incorporate
+infection
+prevalence",7,0.046,0.954,0.104,0.896
+"Incorporate
+infection
+prevalence",8,0.066,0.934,0.138,0.862
+"Incorporate
+infection
+prevalence",9,0.074,0.926,0.166,0.834
+"Incorporate
+infection
+prevalence",10,0.098,0.902,0.152,0.848
+"Incorporate
+infection
+prevalence",11,0.102,0.898,0.162,0.838
+"Incorporate
+infection
+prevalence",12,0.136,0.864,0.154,0.846
+"Incorporate
+infection
+prevalence",13,0.134,0.866,0.17,0.83
+"Incorporate
+infection
+prevalence",14,0.168,0.832,0.158,0.842
+"Incorporate
+infection
+prevalence",15,0.176,0.824,0.184,0.816
+"Incorporate
+infection
+prevalence",16,0.212,0.788,0.186,0.814
+"Incorporate
+infection
+prevalence",17,0.236,0.764,0.172,0.828
+"Incorporate
+infection
+prevalence",18,0.262,0.738,0.176,0.824
+"Incorporate
+infection
+prevalence",19,0.28,0.72,0.186,0.814
+"Incorporate
+infection
+prevalence",20,0.3,0.7,0.19,0.81
+"Incorporate
+infection
+prevalence",21,0.308,0.692,0.222,0.778
+"Incorporate
+infection
+prevalence",22,0.34,0.66,0.22,0.78
+"Incorporate
+infection
+prevalence",23,0.362,0.638,0.222,0.778
+"Incorporate
+infection
+prevalence",24,0.38,0.62,0.21,0.79
+"Incorporate
+infection
+prevalence",25,0.382,0.618,0.232,0.768
+"Incorporate
+infection
+prevalence",26,0.392,0.608,0.24,0.76
+"Incorporate
+infection
+prevalence",27,0.4,0.6,0.282,0.718
+"Incorporate
+infection
+prevalence",28,0.442,0.558,0.27,0.73
+"Incorporate
+infection
+prevalence",29,0.48,0.52,0.246,0.754
+"Incorporate
+infection
+prevalence",30,0.506,0.494,0.292,0.708
+"Incorporate
+infection
+prevalence",31,0.524,0.476,0.28,0.72
+"Incorporate
+infection
+prevalence",32,0.534,0.466,0.338,0.662
+"Incorporate
+infection
+prevalence",33,0.576,0.424,0.326,0.674
+"Incorporate
+infection
+prevalence",34,0.586,0.414,0.406,0.594
+"Incorporate
+infection
+prevalence",35,0.618,0.382,0.382,0.618
+"Incorporate
+infection
+prevalence",36,0.654,0.346,0.402,0.598
+"Incorporate
+infection
+prevalence",37,0.69,0.31,0.424,0.576
+"Incorporate
+infection
+prevalence",38,0.728,0.272,0.426,0.574
+"Incorporate
+infection
+prevalence",39,0.744,0.256,0.488,0.512
+"Incorporate
+infection
+prevalence",40,0.766,0.234,0.508,0.492
+"Incorporate
+infection
+prevalence",41,0.798,0.202,0.53,0.47
+"Incorporate
+infection
+prevalence",42,0.82,0.18,0.546,0.454
+"Incorporate
+infection
+prevalence",43,0.83,0.17,0.616,0.384
+"Incorporate
+infection
+prevalence",44,0.854,0.146,0.642,0.358
+"Incorporate
+infection
+prevalence",45,0.856,0.144,0.652,0.348
+"Incorporate
+infection
+prevalence",46,0.904,0.096,0.628,0.372
+"Incorporate
+infection
+prevalence",47,0.92,0.08,0.566,0.434
+"Incorporate
+infection
+prevalence",48,0.918,0.082,0.618,0.382
+"Incorporate
+infection
+prevalence",49,0.938,0.062,0.458,0.542
+"Incorporate
+infection
+prevalence",50,0.94,0.06,0.456,0.544
+"Incorporate
+seroprevalence",1,0.79,0.21,0.356,0.644
+"Incorporate
+seroprevalence",2,0.302,0.698,0.308,0.692
+"Incorporate
+seroprevalence",3,0.352,0.648,0.316,0.684
+"Incorporate
+seroprevalence",4,0.372,0.628,0.336,0.664
+"Incorporate
+seroprevalence",5,0.354,0.646,0.368,0.632
+"Incorporate
+seroprevalence",6,0.346,0.654,0.386,0.614
+"Incorporate
+seroprevalence",7,0.354,0.646,0.354,0.646
+"Incorporate
+seroprevalence",8,0.356,0.644,0.384,0.616
+"Incorporate
+seroprevalence",9,0.352,0.648,0.418,0.582
+"Incorporate
+seroprevalence",10,0.38,0.62,0.362,0.638
+"Incorporate
+seroprevalence",11,0.392,0.608,0.392,0.608
+"Incorporate
+seroprevalence",12,0.394,0.606,0.376,0.624
+"Incorporate
+seroprevalence",13,0.372,0.628,0.382,0.618
+"Incorporate
+seroprevalence",14,0.382,0.618,0.376,0.624
+"Incorporate
+seroprevalence",15,0.394,0.606,0.38,0.62
+"Incorporate
+seroprevalence",16,0.402,0.598,0.382,0.618
+"Incorporate
+seroprevalence",17,0.416,0.584,0.374,0.626
+"Incorporate
+seroprevalence",18,0.398,0.602,0.354,0.646
+"Incorporate
+seroprevalence",19,0.42,0.58,0.39,0.61
+"Incorporate
+seroprevalence",20,0.428,0.572,0.378,0.622
+"Incorporate
+seroprevalence",21,0.41,0.59,0.4,0.6
+"Incorporate
+seroprevalence",22,0.412,0.588,0.378,0.622
+"Incorporate
+seroprevalence",23,0.426,0.574,0.388,0.612
+"Incorporate
+seroprevalence",24,0.428,0.572,0.41,0.59
+"Incorporate
+seroprevalence",25,0.416,0.584,0.382,0.618
+"Incorporate
+seroprevalence",26,0.452,0.548,0.358,0.642
+"Incorporate
+seroprevalence",27,0.442,0.558,0.418,0.582
+"Incorporate
+seroprevalence",28,0.438,0.562,0.402,0.598
+"Incorporate
+seroprevalence",29,0.426,0.574,0.372,0.628
+"Incorporate
+seroprevalence",30,0.452,0.548,0.386,0.614
+"Incorporate
+seroprevalence",31,0.444,0.556,0.382,0.618
+"Incorporate
+seroprevalence",32,0.458,0.542,0.43,0.57
+"Incorporate
+seroprevalence",33,0.472,0.528,0.39,0.61
+"Incorporate
+seroprevalence",34,0.468,0.532,0.44,0.56
+"Incorporate
+seroprevalence",35,0.472,0.528,0.412,0.588
+"Incorporate
+seroprevalence",36,0.48,0.52,0.42,0.58
+"Incorporate
+seroprevalence",37,0.506,0.494,0.45,0.55
+"Incorporate
+seroprevalence",38,0.506,0.494,0.404,0.596
+"Incorporate
+seroprevalence",39,0.532,0.468,0.434,0.566
+"Incorporate
+seroprevalence",40,0.508,0.492,0.438,0.562
+"Incorporate
+seroprevalence",41,0.504,0.496,0.44,0.56
+"Incorporate
+seroprevalence",42,0.512,0.488,0.424,0.576
+"Incorporate
+seroprevalence",43,0.512,0.488,0.464,0.536
+"Incorporate
+seroprevalence",44,0.518,0.482,0.448,0.552
+"Incorporate
+seroprevalence",45,0.52,0.48,0.444,0.556
+"Incorporate
+seroprevalence",46,0.522,0.478,0.444,0.556
+"Incorporate
+seroprevalence",47,0.522,0.478,0.452,0.548
+"Incorporate
+seroprevalence",48,0.506,0.494,0.546,0.454
+"Incorporate
+seroprevalence",49,0.494,0.506,0.448,0.552
+"Incorporate
+seroprevalence",50,0.482,0.518,0.452,0.548
+"Small
+sample size",1,0.598,0.402,0.462,0.538
+"Small
+sample size",2,0.356,0.644,0.422,0.578
+"Small
+sample size",3,0.352,0.648,0.438,0.562
+"Small
+sample size",4,0.346,0.654,0.438,0.562
+"Small
+sample size",5,0.364,0.636,0.468,0.532
+"Small
+sample size",6,0.382,0.618,0.424,0.576
+"Small
+sample size",7,0.386,0.614,0.458,0.542
+"Small
+sample size",8,0.378,0.622,0.468,0.532
+"Small
+sample size",9,0.39,0.61,0.454,0.546
+"Small
+sample size",10,0.4,0.6,0.44,0.56
+"Small
+sample size",11,0.41,0.59,0.432,0.568
+"Small
+sample size",12,0.418,0.582,0.4,0.6
+"Small
+sample size",13,0.396,0.604,0.462,0.538
+"Small
+sample size",14,0.41,0.59,0.436,0.564
+"Small
+sample size",15,0.398,0.602,0.47,0.53
+"Small
+sample size",16,0.438,0.562,0.448,0.552
+"Small
+sample size",17,0.442,0.558,0.474,0.526
+"Small
+sample size",18,0.428,0.572,0.41,0.59
+"Small
+sample size",19,0.45,0.55,0.464,0.536
+"Small
+sample size",20,0.44,0.56,0.442,0.558
+"Small
+sample size",21,0.456,0.544,0.49,0.51
+"Small
+sample size",22,0.42,0.58,0.426,0.574
+"Small
+sample size",23,0.428,0.572,0.462,0.538
+"Small
+sample size",24,0.442,0.558,0.438,0.562
+"Small
+sample size",25,0.442,0.558,0.49,0.51
+"Small
+sample size",26,0.454,0.546,0.482,0.518
+"Small
+sample size",27,0.436,0.564,0.444,0.556
+"Small
+sample size",28,0.458,0.542,0.468,0.532
+"Small
+sample size",29,0.446,0.554,0.41,0.59
+"Small
+sample size",30,0.452,0.548,0.496,0.504
+"Small
+sample size",31,0.438,0.562,0.43,0.57
+"Small
+sample size",32,0.446,0.554,0.49,0.51
+"Small
+sample size",33,0.422,0.578,0.472,0.528
+"Small
+sample size",34,0.444,0.556,0.442,0.558
+"Small
+sample size",35,0.446,0.554,0.48,0.52
+"Small
+sample size",36,0.452,0.548,0.468,0.532
+"Small
+sample size",37,0.484,0.516,0.44,0.56
+"Small
+sample size",38,0.484,0.516,0.448,0.552
+"Small
+sample size",39,0.484,0.516,0.47,0.53
+"Small
+sample size",40,0.49,0.51,0.444,0.556
+"Small
+sample size",41,0.464,0.536,0.47,0.53
+"Small
+sample size",42,0.436,0.564,0.422,0.578
+"Small
+sample size",43,0.432,0.568,0.492,0.508
+"Small
+sample size",44,0.464,0.536,0.46,0.54
+"Small
+sample size",45,0.446,0.554,0.422,0.578
+"Small
+sample size",46,0.464,0.536,0.46,0.54
+"Small
+sample size",47,0.458,0.542,0.532,0.468
+"Small
+sample size",48,0.438,0.562,0.508,0.492
+"Small
+sample size",49,0.414,0.586,0.488,0.512
+"Small
+sample size",50,0.446,0.554,0.478,0.522
+"Early mixing
+of susceptibles",1,0.826,0.174,0.284,0.716
+"Early mixing
+of susceptibles",2,0.294,0.706,0.272,0.728
+"Early mixing
+of susceptibles",3,0.322,0.678,0.278,0.722
+"Early mixing
+of susceptibles",4,0.348,0.652,0.286,0.714
+"Early mixing
+of susceptibles",5,0.356,0.644,0.288,0.712
+"Early mixing
+of susceptibles",6,0.352,0.648,0.3,0.7
+"Early mixing
+of susceptibles",7,0.37,0.63,0.306,0.694
+"Early mixing
+of susceptibles",8,0.366,0.634,0.3,0.7
+"Early mixing
+of susceptibles",9,0.37,0.63,0.31,0.69
+"Early mixing
+of susceptibles",10,0.376,0.624,0.278,0.722
+"Early mixing
+of susceptibles",11,0.382,0.618,0.302,0.698
+"Early mixing
+of susceptibles",12,0.38,0.62,0.278,0.722
+"Early mixing
+of susceptibles",13,0.372,0.628,0.28,0.72
+"Early mixing
+of susceptibles",14,0.406,0.594,0.292,0.708
+"Early mixing
+of susceptibles",15,0.402,0.598,0.266,0.734
+"Early mixing
+of susceptibles",16,0.412,0.588,0.326,0.674
+"Early mixing
+of susceptibles",17,0.422,0.578,0.292,0.708
+"Early mixing
+of susceptibles",18,0.408,0.592,0.278,0.722
+"Early mixing
+of susceptibles",19,0.422,0.578,0.296,0.704
+"Early mixing
+of susceptibles",20,0.408,0.592,0.304,0.696
+"Early mixing
+of susceptibles",21,0.41,0.59,0.302,0.698
+"Early mixing
+of susceptibles",22,0.412,0.588,0.324,0.676
+"Early mixing
+of susceptibles",23,0.428,0.572,0.324,0.676
+"Early mixing
+of susceptibles",24,0.42,0.58,0.29,0.71
+"Early mixing
+of susceptibles",25,0.418,0.582,0.284,0.716
+"Early mixing
+of susceptibles",26,0.402,0.598,0.284,0.716
+"Early mixing
+of susceptibles",27,0.416,0.584,0.32,0.68
+"Early mixing
+of susceptibles",28,0.438,0.562,0.318,0.682
+"Early mixing
+of susceptibles",29,0.444,0.556,0.31,0.69
+"Early mixing
+of susceptibles",30,0.44,0.56,0.322,0.678
+"Early mixing
+of susceptibles",31,0.45,0.55,0.316,0.684
+"Early mixing
+of susceptibles",32,0.458,0.542,0.304,0.696
+"Early mixing
+of susceptibles",33,0.46,0.54,0.308,0.692
+"Early mixing
+of susceptibles",34,0.488,0.512,0.322,0.678
+"Early mixing
+of susceptibles",35,0.478,0.522,0.294,0.706
+"Early mixing
+of susceptibles",36,0.468,0.532,0.346,0.654
+"Early mixing
+of susceptibles",37,0.472,0.528,0.278,0.722
+"Early mixing
+of susceptibles",38,0.496,0.504,0.326,0.674
+"Early mixing
+of susceptibles",39,0.494,0.506,0.332,0.668
+"Early mixing
+of susceptibles",40,0.51,0.49,0.282,0.718
+"Early mixing
+of susceptibles",41,0.492,0.508,0.302,0.698
+"Early mixing
+of susceptibles",42,0.504,0.496,0.314,0.686
+"Early mixing
+of susceptibles",43,0.496,0.504,0.312,0.688
+"Early mixing
+of susceptibles",44,0.49,0.51,0.344,0.656
+"Early mixing
+of susceptibles",45,0.512,0.488,0.352,0.648
+"Early mixing
+of susceptibles",46,0.496,0.504,0.344,0.656
+"Early mixing
+of susceptibles",47,0.492,0.508,0.38,0.62
+"Early mixing
+of susceptibles",48,0.488,0.512,0.492,0.508
+"Early mixing
+of susceptibles",49,0.494,0.506,0.42,0.58
+"Early mixing
+of susceptibles",50,0.482,0.518,0.434,0.566
+"Age-specific
+mixing
+ignored",1,1,0,1,0
+"Age-specific
+mixing
+ignored",2,1,0,0.998,0.002
+"Age-specific
+mixing
+ignored",3,1,0,0.998,0.002
+"Age-specific
+mixing
+ignored",4,1,0,0.994,0.006
+"Age-specific
+mixing
+ignored",5,1,0,0.996,0.004
+"Age-specific
+mixing
+ignored",6,1,0,0.996,0.004
+"Age-specific
+mixing
+ignored",7,1,0,0.998,0.002
+"Age-specific
+mixing
+ignored",8,0.996,0.004,0.996,0.004
+"Age-specific
+mixing
+ignored",9,0.998,0.002,0.998,0.002
+"Age-specific
+mixing
+ignored",10,0.988,0.012,0.996,0.004
+"Age-specific
+mixing
+ignored",11,0.986,0.014,0.996,0.004
+"Age-specific
+mixing
+ignored",12,0.98,0.02,0.998,0.002
+"Age-specific
+mixing
+ignored",13,0.966,0.034,0.994,0.006
+"Age-specific
+mixing
+ignored",14,0.948,0.052,0.992,0.008
+"Age-specific
+mixing
+ignored",15,0.94,0.06,0.994,0.006
+"Age-specific
+mixing
+ignored",16,0.928,0.072,0.992,0.008
+"Age-specific
+mixing
+ignored",17,0.916,0.084,0.988,0.012
+"Age-specific
+mixing
+ignored",18,0.898,0.102,0.992,0.008
+"Age-specific
+mixing
+ignored",19,0.884,0.116,0.982,0.018
+"Age-specific
+mixing
+ignored",20,0.852,0.148,0.984,0.016
+"Age-specific
+mixing
+ignored",21,0.834,0.166,0.99,0.01
+"Age-specific
+mixing
+ignored",22,0.81,0.19,0.978,0.022
+"Age-specific
+mixing
+ignored",23,0.754,0.246,0.986,0.014
+"Age-specific
+mixing
+ignored",24,0.734,0.266,0.986,0.014
+"Age-specific
+mixing
+ignored",25,0.706,0.294,0.988,0.012
+"Age-specific
+mixing
+ignored",26,0.676,0.324,0.98,0.02
+"Age-specific
+mixing
+ignored",27,0.68,0.32,0.98,0.02
+"Age-specific
+mixing
+ignored",28,0.626,0.374,0.98,0.02
+"Age-specific
+mixing
+ignored",29,0.56,0.44,0.974,0.026
+"Age-specific
+mixing
+ignored",30,0.544,0.456,0.984,0.016
+"Age-specific
+mixing
+ignored",31,0.49,0.51,0.978,0.022
+"Age-specific
+mixing
+ignored",32,0.462,0.538,0.974,0.026
+"Age-specific
+mixing
+ignored",33,0.398,0.602,0.98,0.02
+"Age-specific
+mixing
+ignored",34,0.38,0.62,0.968,0.032
+"Age-specific
+mixing
+ignored",35,0.304,0.696,0.954,0.046
+"Age-specific
+mixing
+ignored",36,0.29,0.71,0.958,0.042
+"Age-specific
+mixing
+ignored",37,0.244,0.756,0.95,0.05
+"Age-specific
+mixing
+ignored",38,0.18,0.82,0.944,0.056
+"Age-specific
+mixing
+ignored",39,0.138,0.862,0.944,0.056
+"Age-specific
+mixing
+ignored",40,0.092,0.908,0.932,0.068
+"Age-specific
+mixing
+ignored",41,0.104,0.896,0.92,0.08
+"Age-specific
+mixing
+ignored",42,0.094,0.906,0.896,0.104
+"Age-specific
+mixing
+ignored",43,0.042,0.958,0.888,0.112
+"Age-specific
+mixing
+ignored",44,0.04,0.96,0.868,0.132
+"Age-specific
+mixing
+ignored",45,0.032,0.968,0.84,0.16
+"Age-specific
+mixing
+ignored",46,0.014,0.986,0.824,0.176
+"Age-specific
+mixing
+ignored",47,0.024,0.976,0.884,0.116
+"Age-specific
+mixing
+ignored",48,0.02,0.98,0.886,0.114
+"Age-specific
+mixing
+ignored",49,0.012,0.988,0.726,0.274
+"Age-specific
+mixing
+ignored",50,0.008,0.992,0.732,0.268
+"Time-varying
+background
+mortality",1,0.711422845691383,0.288577154308617,0.302605210420842,0.697394789579158
+"Time-varying
+background
+mortality",2,0.31062124248497,0.68937875751503,0.298597194388778,0.701402805611222
+"Time-varying
+background
+mortality",3,0.334669338677355,0.665330661322645,0.308617234468938,0.691382765531062
+"Time-varying
+background
+mortality",4,0.344689378757515,0.655310621242485,0.31062124248497,0.68937875751503
+"Time-varying
+background
+mortality",5,0.348697394789579,0.651302605210421,0.354709418837675,0.645290581162325
+"Time-varying
+background
+mortality",6,0.342685370741483,0.657314629258517,0.328657314629259,0.671342685370741
+"Time-varying
+background
+mortality",7,0.354709418837675,0.645290581162325,0.324649298597194,0.675350701402806
+"Time-varying
+background
+mortality",8,0.334669338677355,0.665330661322645,0.328657314629259,0.671342685370741
+"Time-varying
+background
+mortality",9,0.334669338677355,0.665330661322645,0.326653306613226,0.673346693386774
+"Time-varying
+background
+mortality",10,0.364729458917836,0.635270541082164,0.322645290581162,0.677354709418838
+"Time-varying
+background
+mortality",11,0.376753507014028,0.623246492985972,0.306613226452906,0.693386773547094
+"Time-varying
+background
+mortality",12,0.412825651302605,0.587174348697395,0.32064128256513,0.67935871743487
+"Time-varying
+background
+mortality",13,0.382765531062124,0.617234468937876,0.328657314629259,0.671342685370741
+"Time-varying
+background
+mortality",14,0.398797595190381,0.601202404809619,0.318637274549098,0.681362725450902
+"Time-varying
+background
+mortality",15,0.418837675350701,0.581162324649299,0.286573146292585,0.713426853707415
+"Time-varying
+background
+mortality",16,0.400801603206413,0.599198396793587,0.35871743486974,0.64128256513026
+"Time-varying
+background
+mortality",17,0.424849699398798,0.575150300601202,0.338677354709419,0.661322645290581
+"Time-varying
+background
+mortality",18,0.430861723446894,0.569138276553106,0.332665330661323,0.667334669338677
+"Time-varying
+background
+mortality",19,0.462925851703407,0.537074148296593,0.382765531062124,0.617234468937876
+"Time-varying
+background
+mortality",20,0.450901803607214,0.549098196392786,0.370741482965932,0.629258517034068
+"Time-varying
+background
+mortality",21,0.456913827655311,0.543086172344689,0.396793587174349,0.603206412825651
+"Time-varying
+background
+mortality",22,0.454909819639279,0.545090180360721,0.37875751503006,0.62124248496994
+"Time-varying
+background
+mortality",23,0.478957915831663,0.521042084168337,0.404809619238477,0.595190380761523
+"Time-varying
+background
+mortality",24,0.466933867735471,0.533066132264529,0.37875751503006,0.62124248496994
+"Time-varying
+background
+mortality",25,0.476953907815631,0.523046092184369,0.38877755511022,0.61122244488978
+"Time-varying
+background
+mortality",26,0.464929859719439,0.535070140280561,0.392785571142285,0.607214428857715
+"Time-varying
+background
+mortality",27,0.44689378757515,0.55310621242485,0.364729458917836,0.635270541082164
+"Time-varying
+background
+mortality",28,0.422845691382766,0.577154308617234,0.3687374749499,0.6312625250501
+"Time-varying
+background
+mortality",29,0.428857715430862,0.571142284569138,0.330661322645291,0.669338677354709
+"Time-varying
+background
+mortality",30,0.464929859719439,0.535070140280561,0.400801603206413,0.599198396793587
+"Time-varying
+background
+mortality",31,0.509018036072144,0.490981963927856,0.35871743486974,0.64128256513026
+"Time-varying
+background
+mortality",32,0.496993987975952,0.503006012024048,0.392785571142285,0.607214428857715
+"Time-varying
+background
+mortality",33,0.488977955911824,0.511022044088176,0.414829659318637,0.585170340681363
+"Time-varying
+background
+mortality",34,0.529058116232465,0.470941883767535,0.418837675350701,0.581162324649299
+"Time-varying
+background
+mortality",35,0.503006012024048,0.496993987975952,0.376753507014028,0.623246492985972
+"Time-varying
+background
+mortality",36,0.460921843687375,0.539078156312625,0.380761523046092,0.619238476953908
+"Time-varying
+background
+mortality",37,0.482965931863727,0.517034068136273,0.418837675350701,0.581162324649299
+"Time-varying
+background
+mortality",38,0.539078156312625,0.460921843687375,0.44689378757515,0.55310621242485
+"Time-varying
+background
+mortality",39,0.51503006012024,0.48496993987976,0.438877755511022,0.561122244488978
+"Time-varying
+background
+mortality",40,0.537074148296593,0.462925851703407,0.416833667334669,0.583166332665331
+"Time-varying
+background
+mortality",41,0.525050100200401,0.474949899799599,0.390781563126253,0.609218436873748
+"Time-varying
+background
+mortality",42,0.535070140280561,0.464929859719439,0.43687374749499,0.56312625250501
+"Time-varying
+background
+mortality",43,0.547094188376753,0.452905811623247,0.430861723446894,0.569138276553106
+"Time-varying
+background
+mortality",44,0.527054108216433,0.472945891783567,0.418837675350701,0.581162324649299
+"Time-varying
+background
+mortality",45,0.545090180360721,0.454909819639279,0.43687374749499,0.56312625250501
+"Time-varying
+background
+mortality",46,0.557114228456914,0.442885771543086,0.450901803607214,0.549098196392786
+"Time-varying
+background
+mortality",47,0.537074148296593,0.462925851703407,0.456913827655311,0.543086172344689
+"Time-varying
+background
+mortality",48,0.565130260521042,0.434869739478958,0.51503006012024,0.48496993987976
+"Time-varying
+background
+mortality",49,0.581162324649299,0.418837675350701,0.448897795591182,0.551102204408818
+"Time-varying
+background
+mortality",50,0.557114228456914,0.442885771543086,0.462925851703407,0.537074148296593
+"Time-varying
+background
+mortality and
+disease ignored",1,0.036,0.964,0.052,0.948
+"Time-varying
+background
+mortality and
+disease ignored",2,0.032,0.968,0.046,0.954
+"Time-varying
+background
+mortality and
+disease ignored",3,0.024,0.976,0.052,0.948
+"Time-varying
+background
+mortality and
+disease ignored",4,0.042,0.958,0.056,0.944
+"Time-varying
+background
+mortality and
+disease ignored",5,0.048,0.952,0.066,0.934
+"Time-varying
+background
+mortality and
+disease ignored",6,0.07,0.93,0.06,0.94
+"Time-varying
+background
+mortality and
+disease ignored",7,0.056,0.944,0.068,0.932
+"Time-varying
+background
+mortality and
+disease ignored",8,0.056,0.944,0.088,0.912
+"Time-varying
+background
+mortality and
+disease ignored",9,0.092,0.908,0.096,0.904
+"Time-varying
+background
+mortality and
+disease ignored",10,0.112,0.888,0.068,0.932
+"Time-varying
+background
+mortality and
+disease ignored",11,0.128,0.872,0.082,0.918
+"Time-varying
+background
+mortality and
+disease ignored",12,0.15,0.85,0.092,0.908
+"Time-varying
+background
+mortality and
+disease ignored",13,0.178,0.822,0.118,0.882
+"Time-varying
+background
+mortality and
+disease ignored",14,0.174,0.826,0.112,0.888
+"Time-varying
+background
+mortality and
+disease ignored",15,0.192,0.808,0.106,0.894
+"Time-varying
+background
+mortality and
+disease ignored",16,0.202,0.798,0.136,0.864
+"Time-varying
+background
+mortality and
+disease ignored",17,0.246,0.754,0.138,0.862
+"Time-varying
+background
+mortality and
+disease ignored",18,0.262,0.738,0.134,0.866
+"Time-varying
+background
+mortality and
+disease ignored",19,0.308,0.692,0.156,0.844
+"Time-varying
+background
+mortality and
+disease ignored",20,0.31,0.69,0.152,0.848
+"Time-varying
+background
+mortality and
+disease ignored",21,0.322,0.678,0.172,0.828
+"Time-varying
+background
+mortality and
+disease ignored",22,0.354,0.646,0.182,0.818
+"Time-varying
+background
+mortality and
+disease ignored",23,0.386,0.614,0.178,0.822
+"Time-varying
+background
+mortality and
+disease ignored",24,0.398,0.602,0.182,0.818
+"Time-varying
+background
+mortality and
+disease ignored",25,0.422,0.578,0.178,0.822
+"Time-varying
+background
+mortality and
+disease ignored",26,0.424,0.576,0.218,0.782
+"Time-varying
+background
+mortality and
+disease ignored",27,0.452,0.548,0.21,0.79
+"Time-varying
+background
+mortality and
+disease ignored",28,0.438,0.562,0.204,0.796
+"Time-varying
+background
+mortality and
+disease ignored",29,0.454,0.546,0.162,0.838
+"Time-varying
+background
+mortality and
+disease ignored",30,0.508,0.492,0.232,0.768
+"Time-varying
+background
+mortality and
+disease ignored",31,0.512,0.488,0.218,0.782
+"Time-varying
+background
+mortality and
+disease ignored",32,0.562,0.438,0.218,0.782
+"Time-varying
+background
+mortality and
+disease ignored",33,0.578,0.422,0.282,0.718
+"Time-varying
+background
+mortality and
+disease ignored",34,0.626,0.374,0.312,0.688
+"Time-varying
+background
+mortality and
+disease ignored",35,0.61,0.39,0.308,0.692
+"Time-varying
+background
+mortality and
+disease ignored",36,0.6,0.4,0.328,0.672
+"Time-varying
+background
+mortality and
+disease ignored",37,0.66,0.34,0.362,0.638
+"Time-varying
+background
+mortality and
+disease ignored",38,0.712,0.288,0.418,0.582
+"Time-varying
+background
+mortality and
+disease ignored",39,0.724,0.276,0.436,0.564
+"Time-varying
+background
+mortality and
+disease ignored",40,0.766,0.234,0.418,0.582
+"Time-varying
+background
+mortality and
+disease ignored",41,0.796,0.204,0.454,0.546
+"Time-varying
+background
+mortality and
+disease ignored",42,0.816,0.184,0.51,0.49
+"Time-varying
+background
+mortality and
+disease ignored",43,0.846,0.154,0.538,0.462
+"Time-varying
+background
+mortality and
+disease ignored",44,0.856,0.144,0.596,0.404
+"Time-varying
+background
+mortality and
+disease ignored",45,0.876,0.124,0.632,0.368
+"Time-varying
+background
+mortality and
+disease ignored",46,0.896,0.104,0.656,0.344
+"Time-varying
+background
+mortality and
+disease ignored",47,0.908,0.092,0.572,0.428
+"Time-varying
+background
+mortality and
+disease ignored",48,0.92,0.08,0.564,0.436
+"Time-varying
+background
+mortality and
+disease ignored",49,0.932,0.068,0.454,0.546
+"Time-varying
+background
+mortality and
+disease ignored",50,0.922,0.078,0.456,0.544
+"Time-varying
+disease
+mortality/recovery",1,0.824,0.176,0.488,0.512
+"Time-varying
+disease
+mortality/recovery",2,0.366,0.634,0.474,0.526
+"Time-varying
+disease
+mortality/recovery",3,0.432,0.568,0.458,0.542
+"Time-varying
+disease
+mortality/recovery",4,0.534,0.466,0.428,0.572
+"Time-varying
+disease
+mortality/recovery",5,0.49,0.51,0.428,0.572
+"Time-varying
+disease
+mortality/recovery",6,0.47,0.53,0.396,0.604
+"Time-varying
+disease
+mortality/recovery",7,0.458,0.542,0.412,0.588
+"Time-varying
+disease
+mortality/recovery",8,0.38,0.62,0.392,0.608
+"Time-varying
+disease
+mortality/recovery",9,0.364,0.636,0.386,0.614
+"Time-varying
+disease
+mortality/recovery",10,0.352,0.648,0.346,0.654
+"Time-varying
+disease
+mortality/recovery",11,0.362,0.638,0.334,0.666
+"Time-varying
+disease
+mortality/recovery",12,0.298,0.702,0.322,0.678
+"Time-varying
+disease
+mortality/recovery",13,0.298,0.702,0.388,0.612
+"Time-varying
+disease
+mortality/recovery",14,0.258,0.742,0.34,0.66
+"Time-varying
+disease
+mortality/recovery",15,0.278,0.722,0.338,0.662
+"Time-varying
+disease
+mortality/recovery",16,0.32,0.68,0.344,0.656
+"Time-varying
+disease
+mortality/recovery",17,0.312,0.688,0.276,0.724
+"Time-varying
+disease
+mortality/recovery",18,0.24,0.76,0.262,0.738
+"Time-varying
+disease
+mortality/recovery",19,0.326,0.674,0.304,0.696
+"Time-varying
+disease
+mortality/recovery",20,0.242,0.758,0.292,0.708
+"Time-varying
+disease
+mortality/recovery",21,0.194,0.806,0.392,0.608
+"Time-varying
+disease
+mortality/recovery",22,0.342,0.658,0.382,0.618
+"Time-varying
+disease
+mortality/recovery",23,0.278,0.722,0.358,0.642
+"Time-varying
+disease
+mortality/recovery",24,0.428,0.572,0.43,0.57
+"Time-varying
+disease
+mortality/recovery",25,0.438,0.562,0.328,0.672
+"Time-varying
+disease
+mortality/recovery",26,0.33,0.67,0.298,0.702
+"Time-varying
+disease
+mortality/recovery",27,0.458,0.542,0.334,0.666
+"Time-varying
+disease
+mortality/recovery",28,0.39,0.61,0.43,0.57
+"Time-varying
+disease
+mortality/recovery",29,0.37,0.63,0.46,0.54
+"Time-varying
+disease
+mortality/recovery",30,0.332,0.668,0.394,0.606
+"Time-varying
+disease
+mortality/recovery",31,0.576,0.424,0.416,0.584
+"Time-varying
+disease
+mortality/recovery",32,0.572,0.428,0.496,0.504
+"Time-varying
+disease
+mortality/recovery",33,0.488,0.512,0.46,0.54
+"Time-varying
+disease
+mortality/recovery",34,0.45,0.55,0.452,0.548
+"Time-varying
+disease
+mortality/recovery",35,0.61,0.39,0.502,0.498
+"Time-varying
+disease
+mortality/recovery",36,0.542,0.458,0.544,0.456
+"Time-varying
+disease
+mortality/recovery",37,0.576,0.424,0.458,0.542
+"Time-varying
+disease
+mortality/recovery",38,0.566,0.434,0.432,0.568
+"Time-varying
+disease
+mortality/recovery",39,0.646,0.354,0.438,0.562
+"Time-varying
+disease
+mortality/recovery",40,0.574,0.426,0.406,0.594
+"Time-varying
+disease
+mortality/recovery",41,0.53,0.47,0.416,0.584
+"Time-varying
+disease
+mortality/recovery",42,0.556,0.444,0.534,0.466
+"Time-varying
+disease
+mortality/recovery",43,0.526,0.474,0.528,0.472
+"Time-varying
+disease
+mortality/recovery",44,0.468,0.532,0.476,0.524
+"Time-varying
+disease
+mortality/recovery",45,0.624,0.376,0.47,0.53
+"Time-varying
+disease
+mortality/recovery",46,0.59,0.41,0.452,0.548
+"Time-varying
+disease
+mortality/recovery",47,0.574,0.426,0.44,0.56
+"Time-varying
+disease
+mortality/recovery",48,0.472,0.528,0.54,0.46
+"Time-varying
+disease
+mortality/recovery",49,0.574,0.426,0.45,0.55
+"Time-varying
+disease
+mortality/recovery",50,0.562,0.438,0.47,0.53

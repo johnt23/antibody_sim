@@ -1,0 +1,24 @@
+"scenario","median.SB.above.0.0","finalyr.SB.above.0.0","median.SB.below.0.0","finalyr.SB.below.0.0","median.R.above.0.0","finalyr.R.above.0.0","median.R.below.0.0","finalyr.R.below.0.0"
+"Ignore disease",0.384,0.948,0.616,0.052,0.184,0.452,0.816,0.548
+"Incorporate
+infection
+prevalence",0.387,0.94,0.613,0.06,0.236,0.456,0.764,0.544
+"Incorporate
+seroprevalence",0.433,0.482,0.567,0.518,0.39,0.452,0.61,0.548
+"Small
+sample size",0.439,0.446,0.561,0.554,0.46,0.478,0.54,0.522
+"Early mixing
+of susceptibles",0.425,0.482,0.575,0.518,0.304,0.434,0.696,0.566
+"Age-specific
+mixing
+ignored",0.693,0.008,0.307,0.992,0.981,0.732,0.019,0.268
+"Time-varying
+background
+mortality",0.463927855711423,0.557114228456914,0.536072144288577,0.442885771543086,0.37875751503006,0.462925851703407,0.62124248496994,0.537074148296593
+"Time-varying
+background
+mortality and
+disease ignored",0.423,0.922,0.577,0.078,0.182,0.456,0.818,0.544
+"Time-varying
+disease
+mortality/recovery",0.454,0.562,0.546,0.438,0.422,0.47,0.578,0.53

@@ -1,0 +1,512 @@
+proc.time()-ptm
+list2env(run.1,globalenv())
+sel_years <- 100:nyr
+Prev = median(run.1$max.prevalence[sel_years])
+Inci = median((apply(Nya_new_infect,1,sum)/apply(Nya,1,sum)))  # median(run.1$max.incidence[sel_years])
+Immu = median(N_y_recovered[,ndays]/apply(Post_out_Nya,1,sum))  # median(run.1$true_prop_immune[sel_years])
+DMor = median((apply(Nya_dis_death,1,sum)/apply(Nya,1,sum)))
+TSur = median(rowSums(Nya*Sya)/rowSums(Nya))
+outbreaks <- run.1$max.prevalence[sel_years] >=0.2
+Freq = sum(outbreaks)/length(sel_years) # Outbreak frequency
+MTim = ifelse(sum(outbreaks)<=1,0,median(diff(which(outbreaks)))) # median time between outbreaks
+MSsb = median(run.1$SSB[sel_years])
+RRec1 <- run.1$Nya[372,1]
+RRec2 <- run.1$Nya[465,1]
+c(Prev,Inci,Immu,DMor,TSur,Freq,MTim,MSsb,RRec1,RRec2)
+p(sprintf("i=%g", i))
+}
+})
+proc.time()-ptm
+ncores <- detectCores()-2
+# cl <- makeCluster(ncores)
+registerDoFuture()
+plan(multisession, workers = ncores)
+handlers("progress","beepr")
+ptm <- proc.time()
+with_progress({
+p <- progressor(5)
+y <- foreach(i=1:10,.combine='rbind',chunksize=2) %dopar% {
+# p <- progressor(along = 1:nrow(m.combinations))
+# y <- foreach(i=1:nrow(m.combinations),.combine='rbind') %dopar% {
+# VHS per capita epidemiological rates (day^-1)
+vhs_trans_rate_C=exp(m.combinations[i,1])
+vhs_trans_rate_I=exp(m.combinations[i,2])
+vhs_mort_rate=rep(m.combinations[i,3],times=nyr)
+vhs_rec_rate=rep(m.combinations[i,4],times=nyr)
+log_sigma_R=m.combinations[i,5]
+rseed = 2770367
+set.seed(rseed)
+ptm <- proc.time()
+run.1 = vhs.asa(nyr,nage,nstage,ndays,avg_waa,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+fishing_mort,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,disease_vulA95,
+nonlinear_exp_1,nonlinear_exp_2,sig_nat_mor,selA50,selA95,ignore.carryover.inf,inf_prev_survey,log_sigma_R,rseed)
+proc.time()-ptm
+list2env(run.1,globalenv())
+sel_years <- 100:nyr
+Prev = median(run.1$max.prevalence[sel_years])
+Inci = median((apply(Nya_new_infect,1,sum)/apply(Nya,1,sum)))  # median(run.1$max.incidence[sel_years])
+Immu = median(N_y_recovered[,ndays]/apply(Post_out_Nya,1,sum))  # median(run.1$true_prop_immune[sel_years])
+DMor = median((apply(Nya_dis_death,1,sum)/apply(Nya,1,sum)))
+TSur = median(rowSums(Nya*Sya)/rowSums(Nya))
+outbreaks <- run.1$max.prevalence[sel_years] >=0.2
+Freq = sum(outbreaks)/length(sel_years) # Outbreak frequency
+MTim = ifelse(sum(outbreaks)<=1,0,median(diff(which(outbreaks)))) # median time between outbreaks
+MSsb = median(run.1$SSB[sel_years])
+RRec1 <- run.1$Nya[372,1]
+RRec2 <- run.1$Nya[465,1]
+p(sprintf("i=%g", i))
+c(Prev,Inci,Immu,DMor,TSur,Freq,MTim,MSsb,RRec1,RRec2)
+}
+})
+proc.time()-ptm
+ptm <- proc.time()
+with_progress({
+p <- progressor(2)
+y <- foreach(i=1:10,.combine='rbind',chunksize=2) %dopar% {
+# p <- progressor(along = 1:nrow(m.combinations))
+# y <- foreach(i=1:nrow(m.combinations),.combine='rbind') %dopar% {
+# VHS per capita epidemiological rates (day^-1)
+vhs_trans_rate_C=exp(m.combinations[i,1])
+vhs_trans_rate_I=exp(m.combinations[i,2])
+vhs_mort_rate=rep(m.combinations[i,3],times=nyr)
+vhs_rec_rate=rep(m.combinations[i,4],times=nyr)
+log_sigma_R=m.combinations[i,5]
+rseed = 2770367
+set.seed(rseed)
+ptm <- proc.time()
+run.1 = vhs.asa(nyr,nage,nstage,ndays,avg_waa,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+fishing_mort,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,disease_vulA95,
+nonlinear_exp_1,nonlinear_exp_2,sig_nat_mor,selA50,selA95,ignore.carryover.inf,inf_prev_survey,log_sigma_R,rseed)
+proc.time()-ptm
+list2env(run.1,globalenv())
+sel_years <- 100:nyr
+Prev = median(run.1$max.prevalence[sel_years])
+Inci = median((apply(Nya_new_infect,1,sum)/apply(Nya,1,sum)))  # median(run.1$max.incidence[sel_years])
+Immu = median(N_y_recovered[,ndays]/apply(Post_out_Nya,1,sum))  # median(run.1$true_prop_immune[sel_years])
+DMor = median((apply(Nya_dis_death,1,sum)/apply(Nya,1,sum)))
+TSur = median(rowSums(Nya*Sya)/rowSums(Nya))
+outbreaks <- run.1$max.prevalence[sel_years] >=0.2
+Freq = sum(outbreaks)/length(sel_years) # Outbreak frequency
+MTim = ifelse(sum(outbreaks)<=1,0,median(diff(which(outbreaks)))) # median time between outbreaks
+MSsb = median(run.1$SSB[sel_years])
+RRec1 <- run.1$Nya[372,1]
+RRec2 <- run.1$Nya[465,1]
+c(Prev,Inci,Immu,DMor,TSur,Freq,MTim,MSsb,RRec1,RRec2)
+}
+})
+proc.time()-ptm
+ncores <- detectCores()-2
+# cl <- makeCluster(ncores)
+registerDoFuture()
+plan(multisession, workers = ncores)
+handlers("progress","beepr")
+ptm <- proc.time()
+with_progress({
+p <- progressor(2)
+y <- foreach(i=1:20,.combine='rbind') %dopar% {
+# p <- progressor(along = 1:nrow(m.combinations))
+# y <- foreach(i=1:nrow(m.combinations),.combine='rbind') %dopar% {
+# VHS per capita epidemiological rates (day^-1)
+vhs_trans_rate_C=exp(m.combinations[i,1])
+vhs_trans_rate_I=exp(m.combinations[i,2])
+vhs_mort_rate=rep(m.combinations[i,3],times=nyr)
+vhs_rec_rate=rep(m.combinations[i,4],times=nyr)
+log_sigma_R=m.combinations[i,5]
+rseed = 2770367
+set.seed(rseed)
+ptm <- proc.time()
+run.1 = vhs.asa(nyr,nage,nstage,ndays,avg_waa,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+fishing_mort,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,disease_vulA95,
+nonlinear_exp_1,nonlinear_exp_2,sig_nat_mor,selA50,selA95,ignore.carryover.inf,inf_prev_survey,log_sigma_R,rseed)
+proc.time()-ptm
+list2env(run.1,globalenv())
+sel_years <- 100:nyr
+Prev = median(run.1$max.prevalence[sel_years])
+Inci = median((apply(Nya_new_infect,1,sum)/apply(Nya,1,sum)))  # median(run.1$max.incidence[sel_years])
+Immu = median(N_y_recovered[,ndays]/apply(Post_out_Nya,1,sum))  # median(run.1$true_prop_immune[sel_years])
+DMor = median((apply(Nya_dis_death,1,sum)/apply(Nya,1,sum)))
+TSur = median(rowSums(Nya*Sya)/rowSums(Nya))
+outbreaks <- run.1$max.prevalence[sel_years] >=0.2
+Freq = sum(outbreaks)/length(sel_years) # Outbreak frequency
+MTim = ifelse(sum(outbreaks)<=1,0,median(diff(which(outbreaks)))) # median time between outbreaks
+MSsb = median(run.1$SSB[sel_years])
+RRec1 <- run.1$Nya[372,1]
+RRec2 <- run.1$Nya[465,1]
+c(Prev,Inci,Immu,DMor,TSur,Freq,MTim,MSsb,RRec1,RRec2)
+}
+})
+proc.time()-ptm
+View(y)
+1:(nrow(m.combinations)/10)*10
+# om_exploration.R
+# Created by John Trochta
+# Date created: 06/20/2020
+# Run simulation model from R of the disease antibodies
+rm(list=ls(all=TRUE)) #clears workspace
+source(here::here("src/vhs_age_stage_om.R"))
+source(here::here("src/fun_obs_mod.R"))
+nyr=600
+nage=8
+nstage=3
+ndays=150
+avg_waa=c(70, 94, 115, 134, 150, 160, 165, 168)
+survey_selA50=3
+survey_selA95=4
+maturity_A50=3
+maturity_A95=4
+disease_vulA50=1
+disease_vulA95=2
+selA50 = 2
+selA95 = 3
+nonlinear_exp_1 = 1
+nonlinear_exp_2 = 1
+sig_nat_mor = 0
+ignore.carryover.inf <- TRUE
+# VHS per capita epidemiological rates (day^-1)
+# vhs_trans_rate_I=0.01
+# vhs_trans_rate_C=0.000001
+# vhs_mort_rate=rep(21/365,times=nyr) # 11/365
+# vhs_rec_rate=rep(20/365,times=nyr) # 26/365
+# vhs_mort_rate = runif(nyr,9/365,21/365)
+# vhs_rec_rate = runif(nyr,20/365,70/365) # 26/365
+# Dependency scaling:
+# This is an exponent in the transmission rate function that allows
+# scaling from frequency dependent (dep_scaling=0) to density
+# dependent (dep_scaling=1)
+dep_scaling=0
+# Fishing mortality rate (year^-1)
+# fishing_mort=c(rep(0,times=150),seq(0.05,0.4,length.out=20),rep(0.4,times=10),rep(0.05,times=10),rep(0.2,times=10))
+fishing_mort=rep(0,times=nyr)
+# Disease prevalence sampling dates (Generate random sequential dates within the first month of transmission)
+inf_prev_survey <- round(runif(nyr,5,30))
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey + round(runif(nyr,1,5)))
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey[,2] + round(runif(nyr,1,5)))
+# Loop through different transmission, disease mortality, and disease recovery rates
+ln_sig_R_vec = c(-0.5108256,0.1823216)
+mort_vec = c(10,40,70)/365 # seq(25/265,92/365,length.out=5)
+recov_vec = c(10,40,70)/365 # seq(25/265,92/365,length.out=5)
+I_trans_vec = -(7:3)
+C_trans_vec = -2*(9:5)
+# Every possible combination of each element in these 3 vectors
+m.combinations <- expand.grid(C_trans_vec,I_trans_vec,recov_vec,mort_vec,ln_sig_R_vec)
+#combin.results <- cbind(m.combinations,rep(NA,times=nrow(m.combinations)),rep(NA,times=nrow(m.combinations)),rep(NA,times=nrow(m.combinations)))
+library(doParallel)
+library(doFuture)
+library(progressr)
+ncores <- detectCores()-2
+# cl <- makeCluster(ncores)
+registerDoFuture()
+plan(multisession, workers = ncores)
+handlers("progress","beepr")
+ptm <- proc.time()
+with_progress({
+p <- progressor(along = 1:(nrow(m.combinations)/10)*10)
+# y <- foreach(i=1:20,.combine='rbind') %dopar% {
+# p <- progressor(along = 1:nrow(m.combinations))
+y <- foreach(i=1:nrow(m.combinations),.combine='rbind') %dopar% {
+# VHS per capita epidemiological rates (day^-1)
+vhs_trans_rate_C=exp(m.combinations[i,1])
+vhs_trans_rate_I=exp(m.combinations[i,2])
+vhs_mort_rate=rep(m.combinations[i,3],times=nyr)
+vhs_rec_rate=rep(m.combinations[i,4],times=nyr)
+log_sigma_R=m.combinations[i,5]
+rseed = 2770367
+set.seed(rseed)
+ptm <- proc.time()
+run.1 = vhs.asa(nyr,nage,nstage,ndays,avg_waa,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+fishing_mort,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,disease_vulA95,
+nonlinear_exp_1,nonlinear_exp_2,sig_nat_mor,selA50,selA95,ignore.carryover.inf,inf_prev_survey,log_sigma_R,rseed)
+proc.time()-ptm
+list2env(run.1,globalenv())
+sel_years <- 100:nyr
+Prev = median(run.1$max.prevalence[sel_years])
+Inci = median((apply(Nya_new_infect,1,sum)/apply(Nya,1,sum)))  # median(run.1$max.incidence[sel_years])
+Immu = median(N_y_recovered[,ndays]/apply(Post_out_Nya,1,sum))  # median(run.1$true_prop_immune[sel_years])
+DMor = median((apply(Nya_dis_death,1,sum)/apply(Nya,1,sum)))
+TSur = median(rowSums(Nya*Sya)/rowSums(Nya))
+outbreaks <- run.1$max.prevalence[sel_years] >=0.2
+Freq = sum(outbreaks)/length(sel_years) # Outbreak frequency
+MTim = ifelse(sum(outbreaks)<=1,0,median(diff(which(outbreaks)))) # median time between outbreaks
+MSsb = median(run.1$SSB[sel_years])
+RRec1 <- run.1$Nya[372,1]
+RRec2 <- run.1$Nya[465,1]
+c(Prev,Inci,Immu,DMor,TSur,Freq,MTim,MSsb)
+}
+})
+proc.time()-ptm
+2998/60
+View(y)
+View(m.combinations)
+colnames(m.combinations) <- c('carrier.transmission','infected.transmission','dis.rec.rate','dis.mor.rate','log.sig.R')
+View(m.combinations)
+colnames(y) <- c('median.prevalence','median.incidence','median.immunity','median.dis.mortality','median.total.survival','outbreak.frequency','median.time.between.outbreaks','median.ssb')
+View(y)
+dat.4.plot <- cbind(m.combinations,y[,1])
+View(dat.4.plot)
+y2 <- data.frame(y)
+colnames(y2) <- c('median.prevalence','median.incidence','median.immunity','median.dis.mortality','median.total.survival','outbreak.frequency','median.time.between.outbreaks','median.ssb')
+dat.4.plot <- cbind(m.combinations,y[,1])
+View(dat.4.plot)
+dat.4.plot <- cbind(m.combinations,y2[,1])
+View(dat.4.plot)
+dat.4.plot <- cbind(m.combinations,y2$median.prevalence)
+View(dat.4.plot)
+dat.4.plot <- dplyr::bind_cols(m.combinations,y2$median.prevalence)
+View(dat.4.plot)
+dat.4.plot <- data.frame(m.combinations,Y=y2$median.prevalence)
+View(dat.4.plot)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,x=Y,group=interaction(recov_vec,mort_vec))) +
+geom_contour_filled() +
+facet_grid(log.sig.R ~ interaction(recov_vec,mort_vec))
+library(ggplot2)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,x=Y,group=interaction(recov_vec,mort_vec))) +
+geom_contour_filled() +
+facet_grid(log.sig.R ~ interaction(recov_vec,mort_vec))
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(recov_vec,mort_vec))) +
+geom_contour_filled() +
+facet_grid(log.sig.R ~ interaction(recov_vec,mort_vec))
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(recov_vec,mort_vec))) +
+geom_contour() +
+facet_grid(log.sig.R ~ interaction(recov_vec,mort_vec))
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(recov_vec,mort_vec))) +
+geom_contour() +
+facet_grid(log.sig.R ~ recov_vec + mort_vec)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(dis.rec.rate,dis.mor.rate))) +
+geom_contour() +
+facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(dis.rec.rate,dis.mor.rate))) +
+geom_contour_filled() +
+facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(dis.rec.rate,dis.mor.rate))) +
+geom_contour(aes(fill=..level..)) +
+facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+install.packages("ggplot2")
+install.packages("ggplot2")
+install.packages("ggplot2")
+library(ggplot2)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(dis.rec.rate,dis.mor.rate))) +
+geom_contour(aes(colour=Y)) +
+facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+library(ggplot2)
+library(ggplot2)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(dis.rec.rate,dis.mor.rate))) +
+geom_contour(aes(colour=Y)) +
+facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(dis.rec.rate,dis.mor.rate))) +
+geom_contour_filled() +
+facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+version
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,z=Y,group=interaction(dis.rec.rate,dis.mor.rate))) +
+geom_contour(aes(color=..level..)) +
+facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+View(dat.4.plot)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+# facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+facet_grid(dis.rec.rate ~ dis.mor.rate)
+dat.4.plot <- filter(data.frame(m.combinations,Y=y2$median.prevalence),log.sig.R>0)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+# facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+facet_grid(dis.rec.rate ~ dis.mor.rate)
+dat.4.plot <- filter(data.frame(m.combinations,Y=y2$median.indidence),log.sig.R>0)
+dat.4.plot <- filter(data.frame(m.combinations,Y=y2$median.incidence),log.sig.R>0)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+# facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+facet_grid(dis.rec.rate ~ dis.mor.rate) # Rows=recovery rate, Columns = mortality rate
+View(dat.4.plot)
+filter(data.frame(m.combinations,Y=y2$median.incidence),log.sig.R>0)
+data.frame(m.combinations,Y=y2$median.incidence)
+dat.4.plot <- filter(data.frame(m.combinations,Y=y2$median.incidence),log.sig.R > 0)
+dat.4.plot <- data.frame(m.combinations,Y=y2$median.incidence)
+dat.4.plot <- filter(dat.4.plot,log.sig.R > 0)
+names(dat.4.plot)
+dat.4.plot <- filter(dat.4.plot,Y > 0)
+library(dplyr)
+dat.4.plot <- data.frame(m.combinations,Y=y2$median.incidence)
+dat.4.plot <- filter(dat.4.plot,log.sig.R > 0)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+# facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+facet_grid(dis.rec.rate ~ dis.mor.rate) # Rows=recovery rate, Columns = mortality rate
+dat.4.plot <- data.frame(m.combinations,Y=y2$median.immunity)
+dat.4.plot <- filter(dat.4.plot,log.sig.R > 0)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+# facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+facet_grid(dis.rec.rate ~ dis.mor.rate) # Rows=recovery rate, Columns = mortality rate
+dat.4.plot <- data.frame(m.combinations,Y=y2$median.dis.mortality)
+dat.4.plot <- filter(dat.4.plot,log.sig.R > 0)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+# facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+facet_grid(dis.rec.rate ~ dis.mor.rate) # Rows=recovery rate, Columns = mortality rate
+dat.4.plot <- data.frame(m.combinations,Y=y2$median.total.survival)
+dat.4.plot <- filter(dat.4.plot,log.sig.R > 0)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+# facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+facet_grid(dis.rec.rate ~ dis.mor.rate) # Rows=recovery rate, Columns = mortality rate
+dat.4.plot <- data.frame(m.combinations,Y=y2$outbreak.frequency)
+dat.4.plot <- filter(dat.4.plot,log.sig.R > 0)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+# facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+facet_grid(dis.rec.rate ~ dis.mor.rate) # Rows=recovery rate, Columns = mortality rate
+dat.4.plot <- data.frame(m.combinations,Y=y2$median.ssb)
+dat.4.plot <- filter(dat.4.plot,log.sig.R > 0)
+ggplot(dat.4.plot,aes(x=infected.transmission,y=carrier.transmission,group=interaction(dis.rec.rate,dis.mor.rate))) +
+# geom_contour(aes(color=..level..)) +
+geom_tile(aes(fill=Y)) +
+theme_classic()+
+scale_fill_continuous(type="viridis") +
+# facet_grid(log.sig.R ~ dis.rec.rate + dis.mor.rate)
+facet_grid(dis.rec.rate ~ dis.mor.rate) # Rows=recovery rate, Columns = mortality rate
+1800/450
+200/60
+exp(-8)
+C_trans_vec = seq(-16,-7,by=1)
+exp(-7)
+exp(-6)
+exp(-6)/exp(-7)
+seq(-6,-2,length.out=10)
+exp(-2)
+exp(-1)
+exp(-1.5)
+seq(-6,-1.5,length.out=10)
+ln_sig_R_vec = c(-0.5108256,0.1823216)
+mort_vec = c(10,40,70)/365 # seq(25/265,92/365,length.out=5)
+recov_vec = c(10,40,70)/365 # seq(25/265,92/365,length.out=5)
+I_trans_vec = seq(-6,-1.5,length.out=10)
+C_trans_vec = seq(-16,-7,by=1)
+# Every possible combination of each element in these 3 vectors
+m.combinations <- expand.grid(C_trans_vec,I_trans_vec,recov_vec,mort_vec,ln_sig_R_vec)
+# om_exploration.R
+# Created by John Trochta
+# Date created: 06/20/2020
+# Run simulation model from R of the disease antibodies
+rm(list=ls(all=TRUE)) #clears workspace
+source(here::here("src/vhs_age_stage_om.R"))
+source(here::here("src/fun_obs_mod.R"))
+nyr=600
+nage=8
+nstage=3
+ndays=150
+avg_waa=c(70, 94, 115, 134, 150, 160, 165, 168)
+survey_selA50=3
+survey_selA95=4
+maturity_A50=3
+maturity_A95=4
+disease_vulA50=1
+disease_vulA95=2
+selA50 = 2
+selA95 = 3
+nonlinear_exp_1 = 1
+nonlinear_exp_2 = 1
+sig_nat_mor = 0
+ignore.carryover.inf <- TRUE
+# VHS per capita epidemiological rates (day^-1)
+# vhs_trans_rate_I=0.01
+# vhs_trans_rate_C=0.000001
+# vhs_mort_rate=rep(21/365,times=nyr) # 11/365
+# vhs_rec_rate=rep(20/365,times=nyr) # 26/365
+# vhs_mort_rate = runif(nyr,9/365,21/365)
+# vhs_rec_rate = runif(nyr,20/365,70/365) # 26/365
+# Dependency scaling:
+# This is an exponent in the transmission rate function that allows
+# scaling from frequency dependent (dep_scaling=0) to density
+# dependent (dep_scaling=1)
+dep_scaling=0
+# Fishing mortality rate (year^-1)
+# fishing_mort=c(rep(0,times=150),seq(0.05,0.4,length.out=20),rep(0.4,times=10),rep(0.05,times=10),rep(0.2,times=10))
+fishing_mort=rep(0,times=nyr)
+# Disease prevalence sampling dates (Generate random sequential dates within the first month of transmission)
+inf_prev_survey <- round(runif(nyr,5,30))
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey + round(runif(nyr,1,5)))
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey[,2] + round(runif(nyr,1,5)))
+# Loop through different transmission, disease mortality, and disease recovery rates
+ln_sig_R_vec = c(-0.5108256,0.1823216)
+mort_vec = c(10,40,70)/365 # seq(25/265,92/365,length.out=5)
+recov_vec = c(10,40,70)/365 # seq(25/265,92/365,length.out=5)
+I_trans_vec = seq(-6,-1.5,length.out=10)
+C_trans_vec = seq(-16,-7,by=1)
+# Every possible combination of each element in these 3 vectors
+m.combinations <- expand.grid(C_trans_vec,I_trans_vec,recov_vec,mort_vec,ln_sig_R_vec)
+colnames(m.combinations) <- c('carrier.transmission','infected.transmission','dis.rec.rate','dis.mor.rate','log.sig.R')
+#combin.results <- cbind(m.combinations,rep(NA,times=nrow(m.combinations)),rep(NA,times=nrow(m.combinations)),rep(NA,times=nrow(m.combinations)))
+library(doParallel)
+library(doFuture)
+library(progressr)
+library(ggplot2)
+library(dplyr)
+ncores <- detectCores()-2
+# cl <- makeCluster(ncores)
+registerDoFuture()
+plan(multisession, workers = ncores)
+handlers("progress","beepr")
+ptm <- proc.time()
+with_progress({
+p <- progressor(along = 1:(nrow(m.combinations)/10)*10)
+# y <- foreach(i=1:20,.combine='rbind') %dopar% {
+# p <- progressor(along = 1:nrow(m.combinations))
+y <- foreach(i=1:nrow(m.combinations),.combine='rbind') %dopar% {
+# VHS per capita epidemiological rates (day^-1)
+vhs_trans_rate_C=exp(m.combinations[i,1])
+vhs_trans_rate_I=exp(m.combinations[i,2])
+vhs_mort_rate=rep(m.combinations[i,3],times=nyr)
+vhs_rec_rate=rep(m.combinations[i,4],times=nyr)
+log_sigma_R=m.combinations[i,5]
+rseed = 2770367
+set.seed(rseed)
+ptm <- proc.time()
+run.1 = vhs.asa(nyr,nage,nstage,ndays,avg_waa,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+fishing_mort,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,disease_vulA95,
+nonlinear_exp_1,nonlinear_exp_2,sig_nat_mor,selA50,selA95,ignore.carryover.inf,inf_prev_survey,log_sigma_R,rseed)
+proc.time()-ptm
+list2env(run.1,globalenv())
+sel_years <- 100:nyr
+Prev = median(run.1$max.prevalence[sel_years])
+Inci = median((apply(Nya_new_infect,1,sum)/apply(Nya,1,sum)))  # median(run.1$max.incidence[sel_years])
+Immu = median(N_y_recovered[,ndays]/apply(Post_out_Nya,1,sum))  # median(run.1$true_prop_immune[sel_years])
+DMor = median((apply(Nya_dis_death,1,sum)/apply(Nya,1,sum)))
+TSur = median(rowSums(Nya*Sya)/rowSums(Nya))
+outbreaks <- run.1$max.prevalence[sel_years] >=0.2
+Freq = sum(outbreaks)/length(sel_years) # Outbreak frequency
+MTim = ifelse(sum(outbreaks)<=1,0,median(diff(which(outbreaks)))) # median time between outbreaks
+MSsb = median(run.1$SSB[sel_years])
+RRec1 <- run.1$Nya[372,1]
+RRec2 <- run.1$Nya[465,1]
+c(Prev,Inci,Immu,DMor,TSur,Freq,MTim,MSsb)
+}
+})

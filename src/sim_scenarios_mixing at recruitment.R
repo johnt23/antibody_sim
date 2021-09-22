@@ -1,0 +1,1436 @@
+#  scenarios.R
+#  Created by John Trochta
+#  This code runs a single M to generate new data and fits one TMB model (EM).
+#  The primary purporse of this program is to test the models and make sure everything is working
+#  
+options(scipen=9)
+setwd(here::here())
+########
+
+# Loading in the data
+# Store the file names from which data is available
+read.in.data  <- function(){
+  source(file=paste0(here::here("src"),"/data_reader.R"))
+  dat.unnamed <- data_reader(filename="vhs_asa_em.dat") # This is nyr - we want to start at nyr_tobefit
+  
+  flag = dat.unnamed[[1]]
+  dat.unnamed[[1]] = NULL
+  
+  Data <- list(nyr = dat.unnamed[[1]],
+               sage = dat.unnamed[[2]],
+               nage = dat.unnamed[[3]],
+               comp_samp_size = dat.unnamed[[4]],
+               catch_comp_samp_size = dat.unnamed[[5]],
+               antibody_comp_samp_size = dat.unnamed[[6]],
+               survey_obs = dat.unnamed[[7]],
+               catches = dat.unnamed[[8]],
+               catch_comps = dat.unnamed[[9]],
+               comp_obs = dat.unnamed[[10]],
+               antibody_obs = dat.unnamed[[11]],
+               avg_waa = dat.unnamed[[12]],
+               maturity_A50 = dat.unnamed[[13]],
+               maturity_A95 = dat.unnamed[[14]],
+               obs_samp_prev = dat.unnamed[[15]],
+               eps=0.01,
+               flag=flag)
+  return(Data)
+}
+
+# Running random replicates of the operating model
+run_om <- function(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,
+                   vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+                   nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,
+                   survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,
+                   sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,
+                   rseeds,N_sims,operating_model){
+  library(doParallel)
+  
+  dir.create(operating_model)
+  
+  i=1
+  
+  cl <- makeCluster(parallel::detectCores()-2)
+  doParallel::registerDoParallel(cl)
+  # ptm <- proc.time()
+  om_runs <- foreach(i=iter(1:N_sims,chunksize=10)) %dopar%{
+    source(here::here("src/vhs_age_stage_om.R"))
+    source(here::here("src/fun_obs_mod.R"))
+    source(here::here("src/fun_obs_mod_perfect.R"))
+    source(here::here("src/fun_write_dat.R"))
+    source(here::here("src/fun_write_truth.R"))
+    source(file=paste0(here::here("src"),"/data_reader.R"))
+    
+    # foreach(i=1){
+    rseed = round(rseeds[i])
+    # Create folder simulated data set titled "rseed_###"
+    modelPath <- paste0(operating_model,"/rseed_",rseed)
+    
+    dir.create(modelPath)
+    
+    setwd(modelPath)
+    
+    # Run OM
+    run.1 = vhs.asa(nyr,nage,nstage,ndays,avg_waa,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+                    fishing_mort,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,disease_vulA95,dis_survey_selA50,dis_survey_selA95,
+                    nonlinear_exp_1,nonlinear_exp_2,sig_nat_mor,selA50,selA95,ignore.carryover.inf,inf_prev_survey,log_sigma_R,rseed)
+    
+    Nya = run.1$Nya[obs_years,]
+    predicted_comps = run.1$predicted_comps[obs_years,]
+    predicted_immune_comps = run.1$predicted_immune_comps[obs_years,]
+    predicted_survey = run.1$predicted_survey[obs_years]
+    Cya = run.1$Cya[obs_years,]
+    N_catch = run.1$N_catch[obs_years]
+    catches = run.1$catches[obs_years]
+    catch_comps = run.1$catch_comps[obs_years,]
+    SSB = run.1$SSB[obs_years]
+    Sya = run.1$Sya[obs_years,]
+    Nya_new_infect = run.1$Nya_new_infect[obs_years,]
+    Nya_sus = run.1$Nya_sus[obs_years,]
+    Nya_sel_sus = run.1$Nya_sel_sus[obs_years,]
+    survey_slx = run.1$survey_slx
+    dis_survey_slx = run.1$dis_survey_slx
+    true_samp_prev = run.1$true_samp_prev[obs_years,]
+    
+    day.peak.prevalence = run.1$day.max.prevalence[obs_years]
+    outbreak.dur.inci = run.1$duration.incidence[obs_years]
+    outbreak.dur.prev = run.1$duration.prevalence[obs_years]
+    peak.inci = run.1$max.incidence[obs_years]
+    peak.prev = run.1$max.prevalence[obs_years]
+    true_immune = run.1$true_prop_immune[obs_years]
+    obs_immune = run.1$obs_prop_immune[obs_years]
+    
+    # Check for negative or non-exisitent numbers
+    flag = 0
+    if(any(run.1$Nya<=0)){
+      flag = 1
+    }else if(any(is.nan(run.1$Nya))){
+      flag = 2
+    }else if(any(is.na(run.1$Nya))){
+      flag = 3
+    }
+    
+    # Run Obs mode
+    observations <- fun_obs_mod(obs_years,Nya,comp_samp_size,catch_comp_samp_size,
+                                predicted_comps,survey_slx,dis_survey_slx,
+                                predicted_immune_comps,antibody_comp_samp_size,
+                                predicted_survey,survey_cv,Cya,N_catch,
+                                true_samp_prev,
+                                rseed)
+    
+    # observations <- fun_obs_mod_perfect(obs_years,Nya,comp_samp_size,catch_comp_samp_size,
+    #                             predicted_comps,survey_slx,dis_survey_slx,
+    #                             predicted_immune_comps,antibody_comp_samp_size,
+    #                             predicted_survey,survey_cv,Cya,N_catch,
+    #                             true_samp_prev,
+    #                             rseed)
+    
+    survey_obs = observations$survey_obs
+    comp_obs = observations$comp_obs
+    antibody_obs = observations$antibody_obs
+    catch_comps = observations$catch_comps
+    obs_samp_prev = observations$obs_samp_prev
+    fun_write_dat(obs_years,nyr,sage,nage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,
+                  survey_obs,catches,catch_comps,
+                  comp_obs,antibody_obs,avg_waa,maturity_A50,maturity_A95,
+                  obs_samp_prev,
+                  rseed,flag)
+    
+    # Write truth to separate files for quantities of interest
+    fun_write_truth(SSB,Nya,Nya_new_infect,Nya_sel_sus,Nya_sus,Sya,
+                    outbreak.dur.inci,outbreak.dur.prev,peak.inci,peak.prev,true_immune,obs_immune,day.peak.prevalence,rseed,flag)
+  }
+  # simtime_1 <- proc.time() - ptm
+  stopCluster(cl)
+  
+  # return(simtime_1)
+  # 07/15/2020 time for 500 runs:  16 mins
+  # 09/26/2020 time for 500 runs:  16.6 mins
+}
+
+# Run the estimation model on all operating model simulation
+run_em <- function(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params){
+  # Store the file names from which data is available
+  read.in.data  <- function(dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx){
+    source(file=paste0(here::here("src"),"/data_reader.R"))
+    dat.unnamed <- data_reader(filename="vhs_asa_em.dat") # This is nyr - we want to start at nyr_tobefit
+    
+    flag = dat.unnamed[[1]]
+    dat.unnamed[[1]] = NULL
+    
+    Data <- list(nyr = dat.unnamed[[1]],
+                 sage = dat.unnamed[[2]],
+                 nage = dat.unnamed[[3]],
+                 comp_samp_size = dat.unnamed[[4]],
+                 catch_comp_samp_size = dat.unnamed[[5]],
+                 antibody_comp_samp_size = dat.unnamed[[6]],
+                 survey_obs = dat.unnamed[[7]],
+                 catches = dat.unnamed[[8]],
+                 catch_comps = dat.unnamed[[9]],
+                 comp_obs = dat.unnamed[[10]],
+                 antibody_obs = dat.unnamed[[11]],
+                 avg_waa = dat.unnamed[[12]],
+                 maturity_A50 = dat.unnamed[[13]],
+                 maturity_A95 = dat.unnamed[[14]],
+                 obs_samp_prev = dat.unnamed[[15]],
+                 dis_mix_age_thresh = dis_mix_age_thresh,
+                 fix_rec_rate = fix_rec_rate,
+                 fix_dis_survey_slx = fix_dis_survey_slx,
+                 eps=0.01,
+                 flag=flag)
+    return(Data)
+  }
+  
+  require(TMB)
+  library(TMB)
+  
+  # Get the cpp code compiled
+  setwd(EM_dir)
+  
+  # TMB Prep - this compiles the code
+  compile(paste0(model_version,".cpp")) 
+  # dyn.load( dynlib(model_version) )
+  
+  # # Initialize parameters
+  # Params = list(dummy=                    0,                    #1
+  #               ac_coef_rec=              0.6,                  #2
+  #               natural_mortality=        0.25,                 #3
+  #               log_Ninit=                4,                    #4
+  #               log_rbar=                 4,                    #5
+  #               log_q_survey=             -0.5,                 #6
+  #               plus_group_mortality=     0.25,                 #7
+  #               log_SD_survey=            -1.203973,            #8
+  #               log_sigma_R=              0.3364722,            #9
+  #               log_sigma_Ninit=          0.3364722,            #10
+  #               selA50=                   2.5,                  #11
+  #               selA95=                   3,                    #12
+  #               survey_selA50=            3.5,                  #13
+  #               survey_selA95=            4.5,                  #14
+  #               disease_selA50=           1.5,                  #15
+  #               disease_selA95=           2,                    #16
+  #               dis_survey_selA50=        3.5,                  #17
+  #               dis_survey_selA95=        4.5,                  #18
+  #               fix_recov_par=          0,                      #19
+  #               log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+  #               log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+  #               init_immune=            rep(0,times=nage),      #22
+  #               tran_infec_rate=        rep(0,times=nyr_obs),   #23
+  #               beta_prev_index=        0)                      #24
+  # 
+  #infec_rate_bounds = c(0,1)
+  #infec_rate_bounds = c(-Inf,Inf)
+  
+  Map_base <- Params
+  
+  # Indices corresponding to locations in par list above
+  #       1     2    3     4  5  6   7     8    9     10   11   12 13   14 15 16 17   18   19   20              21               22                   23                      24
+  LB <- c(-Inf, 0,   0.15, 1, 1, -2, 0.15, -4,  -4,   -4,  0.5, 1, 0.5, 1, 0, 0, 0.5, 0.5, 0.0, rep(-5,nage-1), rep(-5,nyr_obs), rep(0.0,times=nage), rep(0.0,times=nyr_obs), -50)
+  UB <- c( Inf, 1,   0.6,  8, 8, 0,  2.5,  0.5, 1.5,  1.5, 5,   6, 5,   6, 6, 6, 6,   6,   1.0, rep(5,nage-1),  rep(5,nyr_obs ), rep(1.0,times=nage), rep(1.0, times=nyr_obs), 50)
+  
+  for(i in 1:(length(Map_base))){
+    Map_base[[i]] <- factor(rep(NA,length(Map_base[[i]])))
+  }
+  
+  # For incorporating an infection prevalence index
+  RE <- c('log_rbar_devs','log_Ninit_devs')
+  map_all <- Map_base[fixed_par_ls]
+  
+  bound.ind <- which(names(unlist(Params))%in%
+                       names(unlist(Params[-which(names(Params)%in%names(map_all) | names(Params)%in%RE)])))
+  # names(unlist(Params))[bound.ind]
+  LB_temp <- LB[bound.ind]
+  UB_temp <- UB[bound.ind]
+  
+  i=1
+  
+  ptm <- proc.time()
+  cl <- makeCluster(parallel::detectCores()-2)
+  registerDoParallel(cl)
+  
+  em_runs <- foreach(i=iter(1:N_sims,chunksize=10),.combine=rbind) %dopar%{
+    #em_runs <- foreach(i=1:60,.combine=rbind) %dopar%{
+    #em_runs <- foreach(i=1:6,.combine=rbind) %dopar%{
+    
+    source(file=paste0(here::here("src"),"/data_reader.R"))
+    require(TMB)
+
+    # Set WD to current simulation rseed
+    rseed = round(rseeds[i])
+    modelPath <- paste0(operating_model,"rseed_",rseed,"/")
+    #modelPath <- paste0(operating_model,"rseed_7753741/")
+    setwd(modelPath)
+    
+    if(file.exists("truth.dat")){
+      # Copy EM from directory to simulations directory
+      #filestocopy <- list.files(EM_dir)
+      #file.copy(from=paste0(EM_dir,filestocopy), to=modelPath, overwrite = TRUE)
+      
+      # Read in truth by which I will compare my results (FIX)
+      true_SSB <- data_reader(filename="truth.dat")[[2]][,1] # This is nyr - we want to start at nyr_tobefit
+      true_REC <- data_reader(filename="truth.dat")[[3]][,1]
+      true_INF <- data_reader(filename="truth.dat")[[4]][,6]
+      
+      # Read in data
+      Data <- read.in.data(dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx)
+      flag <- Data[[20]]
+      Data[[20]] <- NULL
+      
+      if(flag==0){
+        
+        # This is the true parameter values
+        # Params[[23]]<- true_INF
+        # map_all <- Map_base[c(1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,23,24)]
+        
+        # This bit is for quick testing
+        # setwd(EM_dir)
+        # compile(paste0(model_version,".cpp")) 
+        # setwd(modelPath)
+        
+        # Fit the model
+        dyn.load(dynlib(paste0(EM_dir,model_version)))
+        model <- MakeADFun( data=Data, parameters=Params, DLL=model_version, map=map_all, random=RE, hessian=T, silent=TRUE)
+        fit <- nlminb(model$par, model$fn, model$gr,control=list( sing.tol=1e-20,rel.tol=1e-12,eval.max=1000000,iter.max=10000),
+                      lower=LB_temp,upper=UB_temp)
+        
+        #(model$report()$infec_rate-true_INF)
+        #(model$report()$SSB-true_SSB)/true_SSB
+        #(model$report()$recruits_obs-true_REC)/true_REC
+        #model$report()$f_llk
+        #model$report()$disease_slx
+        #model$report()$survey_slx
+        #model$report()$predicted_antibody
+        # model$report()$prop_imm
+        
+        #fit$par
+        #trial <- model$report()
+        
+        saveRDS(fit,   file=paste0(model_version,"_",scenario,"_parameters.RDS"))
+        saveRDS(model, file=paste0(model_version,"_",scenario,"_model_output.RDS"))
+        
+        # Store the estimates
+        est_SSB <- model$report()$SSB
+        est_REC <- model$report()$recruits_obs
+        est_INF <- model$report()$infec_rate
+        
+        # plot(true_SSB,est_SSB); abline(0,1)
+        # plot(true_REC,est_REC); abline(0,1)
+        # plot(true_INF,est_INF); abline(0,1)
+        
+        converg <- fit$convergence
+        converg_message <- fit$message
+      }else{
+        # Store the estimates
+        est_SSB <- rep(NA,length.out=length(true_SSB))
+        est_REC <- rep(NA,length.out=length(true_REC))
+        est_INF <- rep(NA,length.out=length(true_INF))
+        
+        converg <- NA
+        converg_message <- NA
+      }
+      
+    }else{
+      true_SSB = rep(NA,times=nyr_obs)
+      est_SSB = rep(NA,times=nyr_obs)
+      true_REC = rep(NA,times=nyr_obs)
+      est_REC = rep(NA,times=nyr_obs)
+      true_INF = rep(NA,times=nyr_obs)
+      est_INF = rep(NA,times=nyr_obs)
+      converg = NA
+      converg_message = "Faulty OM values"
+    }
+    
+    if(i%%50==0){
+      print(paste0("Iteration: ",i,"; Time elapsed: ",proc.time()[3] - ptm[3]))
+    }
+    
+    sim.results <- data.frame(seed=rseed,
+                              year=1:length(true_SSB),
+                              true_ssb=true_SSB,
+                              est_ssb=est_SSB,
+                              true_rec=true_REC,
+                              est_rec=est_REC,
+                              true_infection=true_INF,
+                              est_infection=est_INF,
+                              convergence=converg,
+                              message=converg_message)
+    
+    sim.results
+  }
+  
+  stopCluster(cl)
+  simtime_2 <- proc.time() - ptm
+  
+  # Save em_runs to .csv in OM#_runs folder
+  write.csv(em_runs,paste0(mainpath,"Scenario_",scenario,"_runs.csv"),row.names=FALSE)
+  
+  timing <- data.frame(em_run_time_mins=simtime_2[3]/60)
+  write.csv(timing,paste0(mainpath,"Scenario_",scenario,"_time.csv"),row.names=FALSE)
+  
+  # Time-varying background mortality:  100.6 minutes
+  # Time-varying background mortality without estimating disease:  9.7 minutes
+  # Time-varying disease mortality:  35.3 minutes
+  # Age-specific mixing ignored:  15.42 minutes
+  # Carryover infections:  174.8 minutes
+  # Incorporating only the disease prevalence index:  8.51 minutes
+  
+  return(em_runs)
+}
+
+##################################
+# Run Operating Model and Store output in separate folders
+##################################
+
+library(doParallel)
+library(dplyr)
+library(tidyr)
+library(prodlim)
+library(R2admb)
+
+# Operating model initialization (things that don't change amongst all scenarios)
+nyr=100
+nage=8
+nstage=3
+ndays=120
+avg_waa=c(70, 94, 115, 134, 150, 160, 165, 168)
+N_sims <- 500
+
+# Exponent on Carrier or Infected numbers within Force of Infection equation - sometimes set to slightly less than 1 because of instability in dynamics (which I haven't seen)
+nonlinear_exp_1 <- 1
+nonlinear_exp_2 <- 1
+
+mainpath <- here::here("results/simulations/base_age specific mixing/")
+
+# operating_model <- paste0(mainpath,"om1_small samp_runs/")
+# operating_model <- paste0(mainpath,"om1_young sus vulnerable_runs/")
+# operating_model <- paste0(mainpath,"time_varying_background_mortality/")
+# operating_model <- paste0(mainpath,"time_varying_disease_mortality/")
+# operating_model <- paste0(mainpath,"ignore_carryover_infections/")
+# operating_model <- paste0(mainpath,"all_time_varying_mortality/")
+# operating_model <- paste0(mainpath,"base_with_catches/")
+
+
+##################################
+# Scenario: Base (disease is ignored)
+##################################
+rseed_global <- 91827374
+set.seed(rseed_global)
+rseeds <- sort(runif(N_sims,100,10^7))
+
+operating_model <- paste0(mainpath,"ignore_disease/")
+
+fishing_mort=rep(0,times=nyr)
+sig_nat_mor = 0
+log_sigma_R = 0.1823216
+vhs_trans_rate_I=0.01
+vhs_trans_rate_C=0.000001
+vhs_mort_rate=rep(11/365,times=nyr) # 11/365
+vhs_rec_rate=rep(26/365,times=nyr) # 26/365
+# vhs_mort_rate = runif(nyr,9/365,21/365)
+# vhs_rec_rate = runif(nyr,20/365,70/365) # 26/365
+dep_scaling=0 # scaling exponent for frequency (dep_scaling=0) to density dependent (dep_scaling=1) transmission
+
+ignore.carryover.inf <- TRUE # All Infected fish die between the end of this year's transmission and next year's
+inf_prev_survey <- round(runif(nyr,1,90))  # Disease prevalence sampling dates (Generate random sequential dates within the first month of transmission)
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey + round(runif(nyr,1,15)))
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey[,2] + round(runif(nyr,1,15)))
+
+survey_selA50 <- 3
+survey_selA95 <- 4
+maturity_A50 <- 3
+maturity_A95 <- 4
+disease_vulA50 <- 3
+disease_vulA95 <- 4
+dis_survey_selA50 <- 3
+dis_survey_selA95 <- 4
+selA50 = 3
+selA95 = 4
+
+# Obsevation model initialization
+sage = 0
+comp_samp_size = 200
+catch_comp_samp_size = 200
+antibody_comp_samp_size = 200
+survey_cv = 0.3
+obs_years = 51:nyr
+nyr_obs = length(obs_years)
+
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/09/2021:  7.29 mins
+
+scenario <- "ignore_disease"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+
+# scenario <- "ignore_disease_multinom"
+# EM_dir <- here::here("results/em_multinom/")
+# model_version <- "vhs_asa_em_multinom"
+
+dis_mix_age_thresh <- 0
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=            0,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0,times=nyr_obs),   #23 - NOTE: DO NOT SET THIS TO ZERO IF ESTIMATING!!!!
+              beta_prev_index=        0)                      #24
+
+fixed_par_ls <-  c(1:3,6:8,10:12,15:19,22:24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/02/2021:  6.51 mins
+
+# 03/08/2021 (Multinomial run):  21.85 mins
+
+
+##################################
+# Scenario: Incorporate seroprevalence
+##################################
+
+operating_model <- paste0(mainpath,"incorporate_seroprevalence/")
+
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+
+scenario <- "incorporate_seroprevalence"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 5
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=          0.5,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0.5,times=nyr_obs), #23 - NOTE: DO NOT SET THIS TO ZERO!!!!
+              beta_prev_index=        0)                      #24
+fixed_par_ls <-  c(1,2,3,6,7,8,10,11,12,17,18,22,24)
+# fixed_par_ls <-  c(1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/09/2021:  31.9 mins
+
+
+##################################
+# Scenario: Incorporate infection prevalence
+##################################
+operating_model <- paste0(mainpath,"incorporate_infection_prevalence/")
+
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- (proc.time() - ptm)[3]/60
+
+scenario <- "incorporate_infection_prevalence"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 0
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=            0,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0,times=nyr_obs),   #23 - NOTE: DO NOT SET THIS TO ZERO IF ESTIMATING!!!!
+              beta_prev_index=        0.1)                    #24
+
+fixed_par_ls <-  c(1:3,6:8,10:12,15:19,22:23)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/09/2021:  6.9 mins
+
+
+##################################
+# Scenario: Small sample size
+##################################
+operating_model <- paste0(mainpath,"small_sample_size/")
+
+comp_samp_size = 20
+catch_comp_samp_size = 20
+antibody_comp_samp_size = 20
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/03/2021:  7.4 mins
+
+scenario <- "small_sample_size"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 5
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=          0.5,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0.5,times=nyr_obs), #23 - NOTE: DO NOT SET THIS TO ZERO!!!!
+              beta_prev_index=        0)                      #24
+fixed_par_ls <-  c(1,2,3,6,7,8,10,11,12,17,18,22,24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/09/2021:  16.45 mins
+
+
+##################################
+# Scenario: Exposed at age 0
+##################################
+
+operating_model <- paste0(mainpath,"exposed_at_age_0/")
+
+disease_vulA50 <- 0
+disease_vulA95 <- 0
+
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+
+scenario <- "exposed_at_age_0"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 0
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=          0.5,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0.5,times=nyr_obs), #23 - NOTE: DO NOT SET THIS TO ZERO!!!!
+              beta_prev_index=        0)                      #24
+fixed_par_ls <-  c(1,2,3,6,7,8,10,11,12,15:18,22,24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/22/2021:  27.3 mins
+
+
+##################################
+# Scenario: Early mixing of susceptible
+##################################
+operating_model <- paste0(mainpath,"early_mixing_of_susceptible/")
+
+comp_samp_size = 200
+catch_comp_samp_size = 200
+antibody_comp_samp_size = 200
+disease_vulA50 <- 1
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/11/2021:  8.77 mins
+
+scenario <- "early_mixing_of_susceptible"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 5
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=          0.5,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0.5,times=nyr_obs), #23 - NOTE: DO NOT SET THIS TO ZERO!!!!
+              beta_prev_index=        0)                      #24
+fixed_par_ls <-  c(1,2,3,6,7,8,10,11,12,17,18,22,24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/11/2021:  31.7 mins
+
+
+##################################
+# Scenario: Age-specific mixing ignored 
+##################################
+operating_model <- paste0(mainpath,"age_specific_mixing_ignored/")
+disease_vulA50 <- 3
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/11/2021:  8.9 mins
+
+scenario <- "age_specific_mixing_ignored"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 0
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=          0.5,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0.5,times=nyr_obs), #23 - NOTE: DO NOT SET THIS TO ZERO!!!!
+              beta_prev_index=        0)                      #24
+fixed_par_ls <-  c(1,2,3,6,7,8,10,11,12,15,16,17,18,22,24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/11/2021:  44.4 mins
+
+
+##################################
+# Scenario: Time-varying background mortality
+##################################
+operating_model <- paste0(mainpath,"time_varying_background_mortality/")
+
+ptm <- proc.time()
+sig_nat_mor = 0.25
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/11/2021: 8.8 mins
+
+scenario <- "time_varying_background_mortality"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 5
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            1,                    #13 (3)
+              survey_selA95=            2,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=          0.5,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0.5,times=nyr_obs), #23 - NOTE: DO NOT SET THIS TO ZERO!!!!
+              beta_prev_index=        0)                      #24
+fixed_par_ls <-  c(1,2,3,6,7,8,10,11,12,17,18,22,24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/11/2021:  34.43 mins
+
+
+##################################
+# Scenario: Time-varying background mortality/ignore disease
+##################################
+operating_model <- paste0(mainpath,"time_varying_background_mortality_ignore_disease/")
+
+ptm <- proc.time()
+sig_nat_mor = 0.25
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/11/2021:  8 mins
+
+scenario <- "time_varying_background_mortality_ignore_disease"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 0
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=            0,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0,times=nyr_obs),   #23 - NOTE: DO NOT SET THIS TO ZERO IF ESTIMATING!!!!
+              beta_prev_index=        0)                      #24
+
+fixed_par_ls <-  c(1:3,6:8,10:12,15:19,22:24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/11/2021: 6.84 mins
+
+
+##################################
+# Scenario: Time-varying disease mortality/recovery
+##################################
+
+operating_model <- paste0(mainpath,"timevarying_disease_mortality_recovery/")
+
+sig_nat_mor <- 0
+disease_vulA50 <- 3
+comp_samp_size = 200
+catch_comp_samp_size = 200
+antibody_comp_samp_size = 200
+vhs_mort_rate = runif(nyr,9/365,21/365)
+vhs_rec_rate = runif(nyr,20/365,70/365)
+
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/11/2021: 8.36 mins
+
+scenario <- "timevarying_disease_mortality_recovery"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 5
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=          0.5,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0.5,times=nyr_obs), #23 - NOTE: DO NOT SET THIS TO ZERO!!!!
+              beta_prev_index=        0)                      #24
+fixed_par_ls <-  c(1,2,3,6,7,8,10,11,12,17,18,22,24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/11/2021: 32.3 mins
+
+
+
+##################################
+# Scenario: Ignore disease, but more drastic changes in survival (not in paper)
+##################################
+rseed_global <- 91827374
+set.seed(rseed_global)
+rseeds <- sort(runif(N_sims,100,10^7))
+
+operating_model <- paste0(mainpath,"ignore_disease_greater survival changes/")
+
+fishing_mort=rep(0,times=nyr)
+sig_nat_mor = 0
+log_sigma_R = 0.1823216
+vhs_trans_rate_I=0.01
+vhs_trans_rate_C=0.000001
+vhs_mort_rate=rep(30/365,times=nyr) # 11/365
+vhs_rec_rate=rep(5/365,times=nyr) # 26/365
+dep_scaling=0 # scaling exponent for frequency (dep_scaling=0) to density dependent (dep_scaling=1) transmission
+
+ignore.carryover.inf <- TRUE # All Infected fish die between the end of this year's transmission and next year's
+inf_prev_survey <- round(runif(nyr,1,90))  # Disease prevalence sampling dates (Generate random sequential dates within the first month of transmission)
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey + round(runif(nyr,1,15)))
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey[,2] + round(runif(nyr,1,15)))
+
+survey_selA50 <- 3
+survey_selA95 <- 4
+maturity_A50 <- 3
+maturity_A95 <- 4
+disease_vulA50 <- 3
+disease_vulA95 <- 4
+dis_survey_selA50 <- 3
+dis_survey_selA95 <- 4
+selA50 = 3
+selA95 = 4
+
+# Obsevation model initialization
+sage = 0
+comp_samp_size = 200
+catch_comp_samp_size = 200
+antibody_comp_samp_size = 200
+survey_cv = 0.3
+obs_years = 51:nyr
+nyr_obs = length(obs_years)
+
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/17/2021:  7.55 mins
+
+scenario <- "ignore_disease_greater survival changes"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+
+# scenario <- "ignore_disease_multinom"
+# EM_dir <- here::here("results/em_multinom/")
+# model_version <- "vhs_asa_em_multinom"
+
+dis_mix_age_thresh <- 0
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=            0,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0,times=nyr_obs),   #23 - NOTE: DO NOT SET THIS TO ZERO IF ESTIMATING!!!!
+              beta_prev_index=        0)                      #24
+
+fixed_par_ls <-  c(1:3,6:8,10:12,15:19,22:24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/17/2021:  6.51 mins
+
+
+##################################
+# Scenario: Time-varying disease mortality/recovery, larger changes in mortality (not in paper)
+##################################
+
+operating_model <- paste0(mainpath,"time_varying_disease_mortality_recovery_greater survival changes/")
+
+sig_nat_mor <- 0
+disease_vulA50 <- 3
+comp_samp_size = 200
+catch_comp_samp_size = 200
+antibody_comp_samp_size = 200
+vhs_mort_rate = runif(nyr,30/365,60/365)
+vhs_rec_rate = runif(nyr,5/365,30/365)
+
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/29/2021: 7.6 mins
+
+scenario <- "time_varying_disease_mortality_recovery_greater survival changes"
+EM_dir <- here::here("results/em_v1/")
+model_version <- "vhs_asa_em_v1"
+dis_mix_age_thresh <- 5
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            3,                    #14 (4)
+              disease_selA50=           2,                    #15 (3)
+              disease_selA95=           3,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=          0.5,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0.5,times=nyr_obs), #23 - NOTE: DO NOT SET THIS TO ZERO!!!!
+              beta_prev_index=        0)                      #24
+fixed_par_ls <-  c(1,2,3,6,7,8,10,11,12,17,18,22,24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/29/2021: 30.10 mins
+
+
+
+
+
+
+
+
+##################################
+# Scenario: No disease in both models (not in paper)
+##################################
+rseed_global <- 91827374
+set.seed(rseed_global)
+rseeds <- sort(runif(N_sims,100,10^7))
+
+operating_model <- paste0(mainpath,"no_disease_multinom/")
+
+fishing_mort=rep(0,times=nyr)
+sig_nat_mor = 0
+log_sigma_R = 0.1823216
+vhs_trans_rate_I=0
+vhs_trans_rate_C=0
+vhs_mort_rate=rep(11/365,times=nyr) # 11/365
+vhs_rec_rate=rep(26/365,times=nyr) # 26/365
+dep_scaling=0 # scaling exponent for frequency (dep_scaling=0) to density dependent (dep_scaling=1) transmission
+
+ignore.carryover.inf <- TRUE # All Infected fish die between the end of this year's transmission and next year's
+inf_prev_survey <- round(runif(nyr,1,90))  # Disease prevalence sampling dates (Generate random sequential dates within the first month of transmission)
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey + round(runif(nyr,1,15)))
+inf_prev_survey <- cbind(inf_prev_survey,inf_prev_survey[,2] + round(runif(nyr,1,15)))
+
+survey_selA50 <- 3
+survey_selA95 <- 4
+maturity_A50 <- 3
+maturity_A95 <- 4
+disease_vulA50 <- 3
+disease_vulA95 <- 4
+dis_survey_selA50 <- 3
+dis_survey_selA95 <- 4
+selA50 = 3
+selA95 = 4
+
+# Obsevation model initialization
+sage = 0
+comp_samp_size = 200
+catch_comp_samp_size = 200
+antibody_comp_samp_size = 200
+survey_cv = 0.3
+obs_years = 51:nyr
+nyr_obs = length(obs_years)
+
+ptm <- proc.time()
+run_om(nyr,nage,nstage,ndays,avg_waa,fishing_mort,sig_nat_mor,log_sigma_R,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+       nonlinear_exp_1,nonlinear_exp_2,ignore.carryover.inf,inf_prev_survey,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,
+       disease_vulA95,dis_survey_selA50,dis_survey_selA95,selA50,selA95,sage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,survey_cv,obs_years,nyr_obs,rseeds,N_sims,operating_model)
+simtime_1 <- proc.time() - ptm
+simtime_1[3]/60
+# 03/09/2021:  7.48 mins
+
+
+scenario <- "no_disease_multinom_ver2"
+EM_dir <- here::here("results/em_multinom/")
+model_version <- "vhs_asa_em_multinom"
+
+dis_mix_age_thresh <- 0
+fix_rec_rate <- 1
+fix_dis_survey_slx <- 1
+
+Params = list(dummy=                    0,                    #1
+              ac_coef_rec=              0.6,                  #2
+              natural_mortality=        0.25,                 #3
+              log_Ninit=                4,                    #4
+              log_rbar=                 4,                    #5 (5.2)
+              log_q_survey=             -0.5,                 #6
+              plus_group_mortality=     0.25,                 #7
+              log_SD_survey=            -1.203973,            #8
+              log_sigma_R=              0.1,                  #9 (0.1823216)
+              log_sigma_Ninit=          0.1,                  #10
+              selA50=                   2.5,                  #11
+              selA95=                   3,                    #12
+              survey_selA50=            2,                    #13 (3)
+              survey_selA95=            5,                    #14 (4)
+              disease_selA50=           1,                    #15 (3)
+              disease_selA95=           2,                    #16 (4)
+              dis_survey_selA50=        3,                    #17
+              dis_survey_selA95=        4,                    #18 
+              fix_recov_par=            0,                    #19 (0.7027)
+              log_Ninit_devs=         rep(0.0,times=nage-1),  #20
+              log_rbar_devs=          rep(0.0,times=nyr_obs ),#21
+              init_immune=            rep(0,times=nage),      #22
+              tran_infec_rate=        rep(0,times=nyr_obs),   #23 - NOTE: DO NOT SET THIS TO ZERO IF ESTIMATING!!!!
+              beta_prev_index=        0)                      #24
+
+fixed_par_ls <-  c(1:3,6:8,10:12,15:19,22:24)
+
+ptm <- proc.time()
+em.results <- run_em(EM_dir,model_version,operating_model,scenario,nage,nyr_obs,fixed_par_ls,dis_mix_age_thresh,fix_rec_rate,fix_dis_survey_slx,N_sims,rseeds,Params)
+simtime_2 <- proc.time() - ptm
+simtime_2[3]/60
+# 03/09/2021:  5.77 mins
+
+
+##################################
+# Plotting Relative Error of Key outputs (SSB, REC, Infection rates)
+##################################
+library(reshape2)
+library(ggplot2)
+
+# Check convergence
+convergence.check <- em.results %>% group_by(seed) %>% summarize(con.rate = all(convergence==0))
+sum(convergence.check$con.rate,na.rm = TRUE)/nrow(convergence.check)
+
+# Calculate relative error for SSB and Recruitment
+rel.err <- em.results %>% group_by(seed) %>% transmute('Year'=1:length(true_ssb),
+                                                    '(a) SSB'=(est_ssb - true_ssb)/true_ssb,
+                                                '(b) Recruitment'=(est_rec - true_rec)/true_rec,
+                                                '(c) Infection rate'=(est_infection-true_infection))
+
+# Melt the data frame
+rel.err.2 <- melt(as.data.frame(rel.err),id=1:2)
+
+# Calc 95% quantiles for each year
+rel.err.3 <- rel.err.2 %>% group_by(variable,Year) %>% summarize(Q.025=quantile(value,probs=0.025,na.rm=TRUE),
+                                                                 Q.25=quantile(value,probs=0.25,na.rm=TRUE),
+                                                                 Q.50=quantile(value,probs=0.5,na.rm=TRUE),
+                                                                 Q.75=quantile(value,probs=0.75,na.rm=TRUE),
+                                                                 Q.975=quantile(value,probs=0.975,na.rm=TRUE))
+# Now plot
+font.size <- 14
+
+ggplot(data=rel.err.3,aes(x=Year,y=Q.50)) + 
+  geom_ribbon(aes(ymin=Q.025,ymax=Q.975),fill="grey70")+
+  geom_ribbon(aes(ymin=Q.25,ymax=Q.75),fill="grey85")+
+  geom_hline(yintercept=0,linetype="dashed")+
+  geom_line(size=1.25)+
+  coord_cartesian(ylim=c(-1,1))+
+  facet_grid(variable~.,switch="y")+
+  scale_x_discrete(limits=c(0,50),expand=c(0,0))+
+  theme_classic()+
+  theme(strip.background = element_blank(),
+        panel.border=element_rect(fill=NA),
+        plot.title = element_text(hjust = 0.5),
+        strip.text.y = element_text(size=font.size),
+        strip.placement = "outside",
+        axis.text.y = element_text(size=font.size-2),
+        axis.text.x = element_text(size=font.size-2),
+        axis.ticks.x= element_line(color="black"),
+        # axis.title.y = element_text(size=font.size+2),
+        axis.title.y = element_blank(),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+        panel.spacing = unit(0.5, "lines"),
+        legend.position ="none")
+
+
+##################################
+# Load and plot key parameters, particularly regarding disease
+##################################
+# Read in parameter estimates
+est_pars <- foreach(i=1:N_sims,.combine=rbind) %do% {
+  # Set WD to current simulation rseed
+  rseed = round(rseeds[i])
+  modelPath <- paste0(operating_model,"rseed_",rseed)
+  #modelPath <- paste0(operating_model,"rseed_7753741/")
+  setwd(modelPath)
+  
+  pars <- readRDS(paste0(model_version,"_",scenario,"_parameters.RDS"))
+  #pars <- readRDS(paste0(model_version,"_",scenario,"_model_output.RDS"))
+  sel_pars <- pars$par[c("fix_recov_par","disease_selA50","disease_selA95","survey_selA50","survey_selA95","log_sigma_R","log_rbar")]
+  
+  results <- data.frame(seed=rseed,t(sel_pars))
+  
+  results
+}
+
+tru_pars <- c(vhs_rec_rate[1]/(vhs_rec_rate[1]+vhs_mort_rate[1]),disease_vulA50,disease_vulA95,survey_selA50,survey_selA95,0.1823216,5.2)
+par_ae <- t(apply(est_pars,1,function(x) x[-1]-tru_pars))
+
+# Melt the data frame
+par_ae <- melt(as.data.frame(par_ae),id=NULL)
+
+
+ggplot(data=par_ae,aes(x=variable,y=value)) + 
+  geom_boxplot()+
+  geom_hline(yintercept=0,linetype="dashed")+
+  coord_cartesian(ylim=c(-2,2))+
+  theme_classic()+
+  theme(panel.border=element_rect(fill=NA),
+        plot.title = element_text(hjust = 0.5),
+        axis.text.y = element_text(size=font.size-2),
+        axis.text.x = element_text(size=font.size-2,angle=45,vjust=0.5),
+        axis.ticks.x= element_line(color="black"),
+        # axis.title.y = element_text(size=font.size+2),
+        axis.title.y = element_blank(),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+        panel.spacing = unit(0.5, "lines"),
+        legend.position ="none")
+
+
+##################################
+# Load & plot antibody observations for a single draw
+##################################
+i = 1
+# rseed = round(rseeds[i])
+# operating_model <- paste0(mainpath,"om1_young sus vulnerable_runs/")
+
+rseed = 2770367
+mainpath <- here::here("results/simulations/")
+# operating_model <- paste0(mainpath,"om1_large samp_runs/")
+# operating_model <- paste0(mainpath,"om1_small samp_runs/")
+
+modelPath <- paste0(here::here("results/simulations/om1_large samp_runs"),"/rseed_",rseed)
+setwd(modelPath)
+
+# Read in data
+Data <- read.in.data()
+antibodies <- Data$antibody_obs
+
+# Calculate age-specific serpositive from overall sample
+seropositive <- t(apply(antibodies,1,function(x) x[seq(1,2*Data$nage,by=2)]/sum(x)))
+colnames(seropositive) <- paste0(0:(Data$nage-1))
+
+# Calculate age composition of overall sample
+samp_comp <- t(apply(antibodies,1,function(x) (x[seq(1,2*Data$nage,by=2)]+x[seq(2,2*Data$nage,by=2)])/sum(x)))
+colnames(samp_comp) <- paste0(0:(Data$nage-1))
+
+# Melt these objects and joiong together
+seropositive <- melt(data.frame(year=1:Data$nyr,
+                         seropositive),id='year',value.name='seropositive')
+samp_comp <- melt(data.frame(year=1:Data$nyr,
+                              samp_comp),id='year',value.name='age_comp')
+
+final_antibodies <- inner_join(seropositive,samp_comp)
+final_antibodies <- filter(final_antibodies,!variable%in%c('Age.0','Age.1'))
+
+final_antibodies$variable <- (0:7)[match(final_antibodies$variable,unique(final_antibodies$variable))]
+
+# Now plot
+font.size <- 14
+
+ggplot(data=final_antibodies) + 
+  geom_col(aes(x=variable, y=age_comp,group=year),fill="grey75")+
+  geom_col(aes(x=variable, y=seropositive,group=year),fill="black")+
+  ylim(0,1)+
+  facet_wrap(year~.,dir="v",nrow=10)+
+  labs(y="Seroprevalence (% antibody positive)")+
+  xlab("Ages")+
+  #scale_x_discrete(limits=c(0,50),expand=c(0,0))+
+  theme_classic()+
+  theme(strip.background = element_blank(),
+        panel.border=element_rect(fill=NA),
+        plot.title = element_text(hjust = 0.5),
+        strip.text.y = element_text(size=font.size),
+        strip.placement = "outside",
+        axis.text.y = element_text(size=font.size-2),
+        axis.text.x = element_text(size=font.size-2,angle=45,vjust=0.5),
+        axis.ticks.x= element_line(color="black"),
+        #axis.title.y = element_blank(),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+        panel.spacing = unit(0.1, "lines"),
+        legend.position ="none")
+
+ggsave(filename=here::here(paste0("results/figures/Figure_example seroprevalence seed ",rseed,".png")),
+       width=10, height=10, units="in",dpi=600)
+
+##################################
+# Load in results for single EM run
+##################################
+i = 250
+rseed = round(rseeds[i])
+modelPath <- paste0(operating_model,"/rseed_",rseed)
+setwd(modelPath)
+outs <- readRDS(paste0(model_version,"_",scenario,"_model_output.RDS"))
+
+# Look at instantaneous mortality strictly due to disease
+-log(outs$report()$Dis_Sya)
+
+pars <- readRDS(paste0(model_version,"_",scenario,"_parameters.RDS"))
+pars$par
+

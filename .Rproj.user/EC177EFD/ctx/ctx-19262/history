@@ -1,0 +1,512 @@
+true_ssb=true_SSB,
+est_ssb=est_SSB,
+true_rec=true_REC,
+est_rec=est_REC,
+true_infection=true_INF,
+est_infection=est_INF,
+convergence=converg,
+message=converg_message)
+sim.results
+}
+stopCluster(cl)
+simtime_2 <- proc.time() - ptm
+# Save em_runs to .csv in OM#_runs folder
+write.csv(em_runs,paste0(operating_model,model_version,"_",scenario,"_runs.csv"),row.names=FALSE)
+simtime_2
+10487/60
+library(reshape2)
+library(ggplot2)
+# Check convergence
+convergence.check <- em_runs %>% group_by(seed) %>% summarize(con.rate = all(convergence==0))
+sum(convergence.check$con.rate,na.rm = TRUE)/nrow(convergence.check)
+# Calculate relative error for SSB and Recruitment
+rel.err <- em_runs %>% group_by(seed) %>% transmute('Year'=1:length(true_ssb),
+'(a) SSB'=(est_ssb - true_ssb)/true_ssb,
+'(b) Recruitment'=(est_rec - true_rec)/true_rec,
+'(c) Infection rate'=(est_infection-true_infection))
+# Melt the data frame
+rel.err.2 <- melt(as.data.frame(rel.err),id=1:2)
+# Calc 95% quantiles for each year
+rel.err.3 <- rel.err.2 %>% group_by(variable,Year) %>% summarize(Q.025=quantile(value,probs=0.025,na.rm=TRUE),
+Q.25=quantile(value,probs=0.25,na.rm=TRUE),
+Q.50=quantile(value,probs=0.5,na.rm=TRUE),
+Q.75=quantile(value,probs=0.75,na.rm=TRUE),
+Q.975=quantile(value,probs=0.975,na.rm=TRUE))
+# Now plot
+font.size <- 14
+ggplot(data=rel.err.3,aes(x=Year,y=Q.50)) +
+geom_ribbon(aes(ymin=Q.025,ymax=Q.975),fill="grey70")+
+geom_ribbon(aes(ymin=Q.25,ymax=Q.75),fill="grey85")+
+geom_hline(yintercept=0,linetype="dashed")+
+geom_line(size=1.25)+
+coord_cartesian(ylim=c(-1,1))+
+facet_grid(variable~.,switch="y")+
+scale_x_discrete(limits=c(0,50),expand=c(0,0))+
+theme_classic()+
+theme(strip.background = element_blank(),
+panel.border=element_rect(fill=NA),
+plot.title = element_text(hjust = 0.5),
+strip.text.y = element_text(size=font.size),
+strip.placement = "outside",
+axis.text.y = element_text(size=font.size-2),
+axis.text.x = element_text(size=font.size-2),
+axis.ticks.x= element_line(color="black"),
+# axis.title.y = element_text(size=font.size+2),
+axis.title.y = element_blank(),
+plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+panel.spacing = unit(0.5, "lines"),
+legend.position ="none")
+ggplot(data=rel.err.3,aes(x=Year,y=Q.50)) +
+geom_ribbon(aes(ymin=Q.025,ymax=Q.975),fill="grey70")+
+geom_ribbon(aes(ymin=Q.25,ymax=Q.75),fill="grey85")+
+geom_hline(yintercept=0,linetype="dashed")+
+geom_line(size=1.25)+
+# coord_cartesian(ylim=c(-1,1))+
+facet_grid(variable~.,switch="y")+
+scale_x_discrete(limits=c(0,50),expand=c(0,0))+
+theme_classic()+
+theme(strip.background = element_blank(),
+panel.border=element_rect(fill=NA),
+plot.title = element_text(hjust = 0.5),
+strip.text.y = element_text(size=font.size),
+strip.placement = "outside",
+axis.text.y = element_text(size=font.size-2),
+axis.text.x = element_text(size=font.size-2),
+axis.ticks.x= element_line(color="black"),
+# axis.title.y = element_text(size=font.size+2),
+axis.title.y = element_blank(),
+plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+panel.spacing = unit(0.5, "lines"),
+legend.position ="none")
+ggplot(data=rel.err.3,aes(x=Year,y=Q.50)) +
+geom_ribbon(aes(ymin=Q.025,ymax=Q.975),fill="grey70")+
+geom_ribbon(aes(ymin=Q.25,ymax=Q.75),fill="grey85")+
+geom_hline(yintercept=0,linetype="dashed")+
+geom_line(size=1.25)+
+coord_cartesian(ylim=c(-2,2))+
+facet_grid(variable~.,switch="y")+
+scale_x_discrete(limits=c(0,50),expand=c(0,0))+
+theme_classic()+
+theme(strip.background = element_blank(),
+panel.border=element_rect(fill=NA),
+plot.title = element_text(hjust = 0.5),
+strip.text.y = element_text(size=font.size),
+strip.placement = "outside",
+axis.text.y = element_text(size=font.size-2),
+axis.text.x = element_text(size=font.size-2),
+axis.ticks.x= element_line(color="black"),
+# axis.title.y = element_text(size=font.size+2),
+axis.title.y = element_blank(),
+plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+panel.spacing = unit(0.5, "lines"),
+legend.position ="none")
+ggplot(data=rel.err.3,aes(x=Year,y=Q.50)) +
+geom_ribbon(aes(ymin=Q.025,ymax=Q.975),fill="grey70")+
+geom_ribbon(aes(ymin=Q.25,ymax=Q.75),fill="grey85")+
+geom_hline(yintercept=0,linetype="dashed")+
+geom_line(size=1.25)+
+coord_cartesian(ylim=c(-1,1))+
+facet_grid(variable~.,switch="y")+
+scale_x_discrete(limits=c(0,50),expand=c(0,0))+
+theme_classic()+
+theme(strip.background = element_blank(),
+panel.border=element_rect(fill=NA),
+plot.title = element_text(hjust = 0.5),
+strip.text.y = element_text(size=font.size),
+strip.placement = "outside",
+axis.text.y = element_text(size=font.size-2),
+axis.text.x = element_text(size=font.size-2),
+axis.ticks.x= element_line(color="black"),
+# axis.title.y = element_text(size=font.size+2),
+axis.title.y = element_blank(),
+plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+panel.spacing = unit(0.5, "lines"),
+legend.position ="none")
+# plot_results.R
+#  Created by John Trochta
+#  This code loads in results from simulation runs and plots summary figures
+options(scipen=9)
+setwd(here::here())
+dir.ls <- c("old/simulations/om1_large samp_runs/vhs_asa_em1_runs.csv",
+"old/simulations/om1_large samp_runs/vhs_asa_em1_no disease est_runs.csv",
+"old/simulations/om1_small samp_runs/vhs_asa_em1_runs.csv")
+scenario.names <- c("Base",
+"No disease estimated",
+"Small sample size")
+# Save em_runs to .csv in OM#_runs folder
+sim.outputs <- data.frame(scenario=scenario.names[1],
+read.csv(paste0(here::here("results/simulations/"),dir.ls[1])))
+for(i in 2:length(dir.ls)){
+temp <- data.frame(scenario=scenario.names[i],
+read.csv(paste0(here::here("results/simulations/"),dir.ls[i])))
+sim.outputs <- rbind(sim.outputs,temp)
+rm(temp)
+}
+# Check (and remove) non-converged models
+nonconverged <- sim.outputs[sim.outputs$convergence!=0,]
+sim.outputs <- sim.outputs[sim.outputs$convergence==0,]
+View(nonconverged)
+##################################
+# Plotting Relative Error of Key outputs (SSB, REC, Infection rates)
+##################################
+library(reshape2)
+library(ggplot2)
+# Calculate relative error for SSB and Recruitment
+rel.err <- sim.outputs %>% group_by(scenario,seed) %>% transmute('Year'=1:length(true_ssb),
+'SSB'=(est_ssb - true_ssb)/true_ssb,
+'Recruitment'=(est_rec - true_rec)/true_rec,
+'Infection rate'=ifelse(est_infection==0,NA,(est_infection-true_infection)))
+# Melt the data frame
+rel.err.2 <- melt(as.data.frame(rel.err),id=1:3)
+# Calc 95% quantiles for each year
+rel.err.3 <- rel.err.2 %>% group_by(scenario,variable,Year) %>% summarize(Q.025=quantile(value,probs=0.025,na.rm=TRUE),
+Q.25=quantile(value,probs=0.25,na.rm=TRUE),
+Q.50=quantile(value,probs=0.5,na.rm=TRUE),
+Q.75=quantile(value,probs=0.75,na.rm=TRUE),
+Q.975=quantile(value,probs=0.975,na.rm=TRUE)) %>%
+filter(!is.na(Q.50))
+rel.err.3$scenario <- sapply(rel.err.3$scenario,FUN=function(x) paste(strwrap(x,width=25),collapse="\n"))
+# Now plot
+font.size <- 14
+ggplot(data=rel.err.3,aes(x=Year,y=Q.50)) +
+geom_ribbon(aes(ymin=Q.025,ymax=Q.975),fill="grey70")+
+geom_ribbon(aes(ymin=Q.25,ymax=Q.75),fill="grey85")+
+geom_hline(yintercept=0,linetype="dashed")+
+geom_line(size=1.25)+
+coord_cartesian(ylim=c(-1,1))+
+facet_grid(variable~scenario,switch="y", drop=T)+
+scale_x_discrete(limits=c(0,50),expand=c(0.05,0.05))+
+theme_classic()+
+theme(strip.background = element_blank(),
+panel.border=element_rect(fill=NA),
+plot.title = element_text(hjust = 0.5),
+strip.text.y = element_text(size=font.size),
+strip.text.x = element_text(size=font.size),
+strip.placement = "outside",
+axis.text.y = element_text(size=font.size-2),
+axis.text.x = element_text(size=font.size-2),
+axis.ticks.x= element_line(color="black"),
+# axis.title.y = element_text(size=font.size+2),
+axis.title.y = element_blank(),
+plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+panel.spacing = unit(0.5, "lines"),
+legend.position ="none")
+ggsave(filename=here::here(paste0("results/figures/Figure_time trajectories of relative error.png")),
+width=10, height=6, units="in",dpi=600)
+# plot_results.R
+#  Created by John Trochta
+#  This code loads in results from simulation runs and plots summary figures
+options(scipen=9)
+setwd(here::here())
+dir.ls <- c("old/simulations/om1_young sus vulnerable_runs/vhs_asa_em1_young susceptibles mixing_runs.csv",
+"base_model/vhs_asa_em_no_age_mixing_age-specific mixing ignored_runs.csv",
+"ignore_carryover_infections/vhs_asa_em1_carryover infections_runs.csv")
+scenario.names <- c("Young susceptibles mix with infectious fish",
+"Age-specific mixing ignored",
+"Carryover infections")
+# Save em_runs to .csv in OM#_runs folder
+sim.outputs <- data.frame(scenario=scenario.names[1],
+read.csv(paste0(here::here("results/simulations/"),dir.ls[1])))
+for(i in 2:length(dir.ls)){
+temp <- data.frame(scenario=scenario.names[i],
+read.csv(paste0(here::here("results/simulations/"),dir.ls[i])))
+sim.outputs <- rbind(sim.outputs,temp)
+rm(temp)
+}
+# Check (and remove) non-converged models
+nonconverged <- sim.outputs[sim.outputs$convergence!=0,]
+sim.outputs <- sim.outputs[sim.outputs$convergence==0,]
+View(nonconverged)
+##################################
+# Plotting Relative Error of Key outputs (SSB, REC, Infection rates)
+##################################
+library(reshape2)
+library(ggplot2)
+# Calculate relative error for SSB and Recruitment
+rel.err <- sim.outputs %>% group_by(scenario,seed) %>% transmute('Year'=1:length(true_ssb),
+'SSB'=(est_ssb - true_ssb)/true_ssb,
+'Recruitment'=(est_rec - true_rec)/true_rec,
+'Infection rate'=ifelse(est_infection==0,NA,(est_infection-true_infection)))
+# Melt the data frame
+rel.err.2 <- melt(as.data.frame(rel.err),id=1:3)
+# Calc 95% quantiles for each year
+rel.err.3 <- rel.err.2 %>% group_by(scenario,variable,Year) %>% summarize(Q.025=quantile(value,probs=0.025,na.rm=TRUE),
+Q.25=quantile(value,probs=0.25,na.rm=TRUE),
+Q.50=quantile(value,probs=0.5,na.rm=TRUE),
+Q.75=quantile(value,probs=0.75,na.rm=TRUE),
+Q.975=quantile(value,probs=0.975,na.rm=TRUE)) %>%
+filter(!is.na(Q.50))
+rel.err.3$scenario <- sapply(rel.err.3$scenario,FUN=function(x) paste(strwrap(x,width=25),collapse="\n"))
+# Now plot
+font.size <- 14
+ggplot(data=rel.err.3,aes(x=Year,y=Q.50)) +
+geom_ribbon(aes(ymin=Q.025,ymax=Q.975),fill="grey70")+
+geom_ribbon(aes(ymin=Q.25,ymax=Q.75),fill="grey85")+
+geom_hline(yintercept=0,linetype="dashed")+
+geom_line(size=1.25)+
+coord_cartesian(ylim=c(-1,1))+
+facet_grid(variable~scenario,switch="y", drop=T)+
+scale_x_discrete(limits=c(0,50),expand=c(0.05,0.05))+
+theme_classic()+
+theme(strip.background = element_blank(),
+panel.border=element_rect(fill=NA),
+plot.title = element_text(hjust = 0.5),
+strip.text.y = element_text(size=font.size),
+strip.text.x = element_text(size=font.size),
+strip.placement = "outside",
+axis.text.y = element_text(size=font.size-2),
+axis.text.x = element_text(size=font.size-2),
+axis.ticks.x= element_line(color="black"),
+# axis.title.y = element_text(size=font.size+2),
+axis.title.y = element_blank(),
+plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+panel.spacing = unit(0.5, "lines"),
+legend.position ="none")
+ggsave(filename=here::here(paste0("results/figures/Figure_time trajectories of relative error.png")),
+width=10, height=6, units="in",dpi=600)
+View(sim.outputs)
+convergence.check <- em_runs %>% group_by(scenario,seed) %>% summarize(con.rate = all(convergence==0))
+convergence.check <- sim_outputs %>% group_by(scenario,seed) %>% summarize(con.rate = all(convergence==0))
+convergence.check <- sim.outputs %>% group_by(scenario,seed) %>% summarize(con.rate = all(convergence==0))
+View(convergence.check)
+convergence.rate <- convergence.check %>% group_by(scenario) %>% summarize(rate=sum(con.rate,na.rm = TRUE)/500)
+View(convergence.rate)
+options(scipen=9)
+setwd(here::here())
+dir.ls <- c("time_varying_background_mortality/vhs_asa_em1_time varying background mortality_runs.csv",
+"time_varying_background_mortality/vhs_asa_em1_time varying background mortality_no disease est_runs.csv",
+"time_varying_disease_mortality/vhs_asa_em1_time varying disease mortality_runs.csv")
+scenario.names <- c("Time-varying background mortality",
+"Time-varying background mortality\n& no disease estimated",
+"Time-varying disease recovery & mortality")
+# Save em_runs to .csv in OM#_runs folder
+sim.outputs <- data.frame(scenario=scenario.names[1],
+read.csv(paste0(here::here("results/simulations/"),dir.ls[1])))
+for(i in 2:length(dir.ls)){
+temp <- data.frame(scenario=scenario.names[i],
+read.csv(paste0(here::here("results/simulations/"),dir.ls[i])))
+sim.outputs <- rbind(sim.outputs,temp)
+rm(temp)
+}
+# Check (and remove) non-converged models
+nonconverged <- sim.outputs[sim.outputs$convergence!=0,]
+sim.outputs <- sim.outputs[sim.outputs$convergence==0,]
+convergence.check <- sim.outputs %>% group_by(scenario,seed) %>% summarize(con.rate = all(convergence==0))
+convergence.rate <- convergence.check %>% group_by(scenario) %>% summarize(rate=sum(con.rate,na.rm = TRUE)/500)
+##################################
+# Plotting Relative Error of Key outputs (SSB, REC, Infection rates)
+##################################
+library(reshape2)
+library(ggplot2)
+# Calculate relative error for SSB and Recruitment
+rel.err <- sim.outputs %>% group_by(scenario,seed) %>% transmute('Year'=1:length(true_ssb),
+'SSB'=(est_ssb - true_ssb)/true_ssb,
+'Recruitment'=(est_rec - true_rec)/true_rec,
+'Infection rate'=ifelse(est_infection==0,NA,(est_infection-true_infection)))
+# Melt the data frame
+rel.err.2 <- melt(as.data.frame(rel.err),id=1:3)
+# Calc 95% quantiles for each year
+rel.err.3 <- rel.err.2 %>% group_by(scenario,variable,Year) %>% summarize(Q.025=quantile(value,probs=0.025,na.rm=TRUE),
+Q.25=quantile(value,probs=0.25,na.rm=TRUE),
+Q.50=quantile(value,probs=0.5,na.rm=TRUE),
+Q.75=quantile(value,probs=0.75,na.rm=TRUE),
+Q.975=quantile(value,probs=0.975,na.rm=TRUE)) %>%
+filter(!is.na(Q.50))
+rel.err.3$scenario <- sapply(rel.err.3$scenario,FUN=function(x) paste(strwrap(x,width=25),collapse="\n"))
+# Now plot
+font.size <- 14
+ggplot(data=rel.err.3,aes(x=Year,y=Q.50)) +
+geom_ribbon(aes(ymin=Q.025,ymax=Q.975),fill="grey70")+
+geom_ribbon(aes(ymin=Q.25,ymax=Q.75),fill="grey85")+
+geom_hline(yintercept=0,linetype="dashed")+
+geom_line(size=1.25)+
+coord_cartesian(ylim=c(-1,1))+
+facet_grid(variable~scenario,switch="y", drop=T)+
+scale_x_discrete(limits=c(0,50),expand=c(0.05,0.05))+
+theme_classic()+
+theme(strip.background = element_blank(),
+panel.border=element_rect(fill=NA),
+plot.title = element_text(hjust = 0.5),
+strip.text.y = element_text(size=font.size),
+strip.text.x = element_text(size=font.size),
+strip.placement = "outside",
+axis.text.y = element_text(size=font.size-2),
+axis.text.x = element_text(size=font.size-2),
+axis.ticks.x= element_line(color="black"),
+# axis.title.y = element_text(size=font.size+2),
+axis.title.y = element_blank(),
+plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
+panel.spacing = unit(0.5, "lines"),
+legend.position ="none")
+ggsave(filename=here::here(paste0("results/figures/Figure_time trajectories of relative error.png")),
+width=10, height=6, units="in",dpi=600)
+#  simulation_test.R
+#  Created by John Trochta
+#  This code runs a single M to generate new data and fits one TMB model (EM).
+#  The primary purporse of this program is to test the models and make sure everything is working
+#
+options(scipen=9)
+setwd(here::here())
+########
+# Loading in the data
+# Store the file names from which data is available
+read.in.data  <- function(){
+source(file=paste0(here::here("src"),"/data_reader.R"))
+dat.unnamed <- data_reader(filename="vhs_asa_em.dat") # This is nyr - we want to start at nyr_tobefit
+flag = dat.unnamed[[1]]
+dat.unnamed[[1]] = NULL
+Data <- list(nyr = dat.unnamed[[1]],
+sage = dat.unnamed[[2]],
+nage = dat.unnamed[[3]],
+comp_samp_size = dat.unnamed[[4]],
+catch_comp_samp_size = dat.unnamed[[5]],
+antibody_comp_samp_size = dat.unnamed[[6]],
+survey_obs = dat.unnamed[[7]],
+catches = dat.unnamed[[8]],
+catch_comps = dat.unnamed[[9]],
+comp_obs = dat.unnamed[[10]],
+antibody_obs = dat.unnamed[[11]],
+avg_waa = dat.unnamed[[12]],
+maturity_A50 = dat.unnamed[[13]],
+maturity_A95 = dat.unnamed[[14]],
+obs_samp_prev = dat.unnamed[[15]],
+eps=0.01,
+flag=flag)
+return(Data)
+}
+##################################
+# Run Operating Model and Store output in separate folders
+##################################
+library(doParallel)
+library(dplyr)
+library(tidyr)
+library(prodlim)
+library(R2admb)
+source(here::here("src/vhs_age_stage_om.R"))
+source(here::here("src/fun_obs_mod.R"))
+source(here::here("src/fun_write_dat.R"))
+source(here::here("src/fun_write_truth.R"))
+source(file=paste0(here::here("src"),"/data_reader.R"))
+# Operating model initialization
+nyr=200
+nage=8
+nstage=3
+ndays=120
+avg_waa=c(70, 94, 115, 134, 150, 160, 165, 168)
+# vhs_trans_rate_I=0
+# vhs_trans_rate_C=0
+# vhs_mort_rate=0
+# vhs_rec_rate=0
+vhs_trans_rate_I=0.01
+vhs_trans_rate_C=0.000001
+vhs_mort_rate=rep(11/365,times=nyr)
+vhs_rec_rate=rep(26/365,times=nyr)
+# vhs_mort_rate = runif(nyr,9/365,21/365)
+# vhs_rec_rate = runif(nyr,20/365,70/365) # 26/365
+dep_scaling=0 # scaling exponent for frequency (dep_scaling=0) to density dependent (dep_scaling=1) transmission
+# Fishing mortality rate (year^-1)
+# fishing_mort=c(rep(0,times=150),seq(0.05,0.4,length.out=20),rep(0.4,times=10),rep(0.05,times=10),rep(0.2,times=10))
+fishing_mort=rep(0,times=nyr)
+survey_selA50 <- 3
+survey_selA95 <- 4
+maturity_A50 <- 3
+maturity_A95 <- 4
+disease_vulA50 <- 3
+disease_vulA95 <- 4
+selA50 = 2.5
+selA95 = 3
+nonlinear_exp_1 = 1
+nonlinear_exp_2 = 1
+sig_nat_mor = 0
+ignore.carryover.inf <- FALSE
+# Obsevation model initialization
+sage = 0
+comp_samp_size = 200
+catch_comp_samp_size = 200
+antibody_comp_samp_size = 200
+survey_cv = 0.3
+obs_years = 151:nyr
+n_obs_yr = length(obs_years)
+N_sims <- 500
+mainpath <- here::here("results/simulations/")
+# operating_model <- paste0(mainpath,"om1_large samp_runs/")
+# operating_model <- paste0(mainpath,"om1_small samp_runs/")
+# operating_model <- paste0(mainpath,"om1_young sus vulnerable_runs/")
+# operating_model <- paste0(mainpath,"base_model/")
+# operating_model <- paste0(mainpath,"time_varying_background_mortality/")
+# operating_model <- paste0(mainpath,"time_varying_disease_mortality/")
+# operating_model <- paste0(mainpath,"ignore_carryover_infections/")
+operating_model <- paste0(mainpath,"prev_index_effect/")
+# operating_model <- paste0(mainpath,"all_time_varying_mortality/")
+# operating_model <- paste0(mainpath,"base_with_catches/")
+set.seed(91827374)
+rseeds <- runif(N_sims,100,10^7)
+#rseeds <- 3251557
+dir.create(operating_model)
+i=1
+cl <- makeCluster(6)
+registerDoParallel(cl)
+ptm <- proc.time()
+om_runs <- foreach(i=iter(1:N_sims,chunksize=10)) %dopar%{
+# foreach(i=1){
+rseed = round(rseeds[i])
+# Create folder simulated data set titled "rseed_###"
+modelPath <- paste0(operating_model,"/rseed_",rseed)
+dir.create(modelPath)
+setwd(modelPath)
+# Run OM
+run.1 = vhs.asa(nyr,nage,nstage,ndays,avg_waa,vhs_trans_rate_I,vhs_trans_rate_C,vhs_mort_rate,vhs_rec_rate,dep_scaling,
+fishing_mort,survey_selA50,survey_selA95,maturity_A50,maturity_A95,disease_vulA50,disease_vulA95,
+nonlinear_exp_1,nonlinear_exp_2,sig_nat_mor,selA50,selA95,ignore.carryover.inf,inf_prev_survey,rseed)
+Nya = run.1$Nya[obs_years,]
+predicted_comps = run.1$predicted_comps[obs_years,]
+predicted_immune_comps = run.1$predicted_immune_comps[obs_years,]
+predicted_survey = run.1$predicted_survey[obs_years]
+Cya = run.1$Cya[obs_years,]
+N_catch = run.1$N_catch[obs_years]
+catches = run.1$catches[obs_years]
+catch_comps = run.1$catch_comps[obs_years,]
+SSB = run.1$SSB[obs_years]
+Sya = run.1$Sya[obs_years,]
+Nya_new_infect = run.1$Nya_new_infect[obs_years,]
+Nya_sus = run.1$Nya_sus[obs_years,]
+Nya_sel_sus = run.1$Nya_sel_sus[obs_years,]
+survey_slx = run.1$survey_slx
+true_samp_prev = run.1$true_samp_prev
+day.peak.prevalence = run.1$day.max.prevalence[obs_years]
+outbreak.dur.inci = run.1$duration.incidence[obs_years]
+outbreak.dur.prev = run.1$duration.prevalence[obs_years]
+peak.inci = run.1$max.incidence[obs_years]
+peak.prev = run.1$max.prevalence[obs_years]
+true_immune = run.1$true_prop_immune[obs_years]
+obs_immune = run.1$obs_prop_immune[obs_years]
+# Check for negative or non-exisitent numbers
+flag = 0
+if(any(run.1$Nya<=0)){
+flag = 1
+}else if(any(is.nan(run.1$Nya))){
+flag = 2
+}else if(any(is.na(run.1$Nya))){
+flag = 3
+}
+# Run Obs mode
+observations <- fun_obs_mod(obs_years,Nya,comp_samp_size,catch_comp_samp_size,
+predicted_comps,survey_slx,
+predicted_immune_comps,antibody_comp_samp_size,
+predicted_survey,survey_cv,Cya,N_catch,
+true_samp_prev,
+rseed)
+survey_obs = observations$survey_obs
+comp_obs = observations$comp_obs
+antibody_obs = observations$antibody_obs
+catch_comps = observations$catch_comps
+obs_samp_prev = observations$obs_samp_prev
+fun_write_dat(obs_years,nyr,sage,nage,comp_samp_size,catch_comp_samp_size,antibody_comp_samp_size,
+survey_obs,catches,catch_comps,
+comp_obs,antibody_obs,avg_waa,maturity_A50,maturity_A95,
+obs_samp_prev,
+rseed,flag)
+# Write truth to separate files for quantities of interest
+fun_write_truth(SSB,Nya,Nya_new_infect,Nya_sel_sus,Nya_sus,Sya,
+outbreak.dur.inci,outbreak.dur.prev,peak.inci,peak.prev,true_immune,obs_immune,day.peak.prevalence,rseed,flag)
+}

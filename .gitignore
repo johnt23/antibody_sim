@@ -1,0 +1,26 @@
+data/
+docs/
+old/
+results/em_multinom/
+results/figures_no age specific mixing/
+results/figures/basa/
+results/real_fits/
+results/simulations/base OM_all ages mixing/
+
+results/simulations/base OM_age specific mixing/ignore_disease_multinom/
+results/simulations/base OM_age specific mixing/no_disease_multinom/
+results/simulations/base OM_age specific mixing/om_base_jan2021/
+results/simulations/base OM_age specific mixing/Individual seeds_multinom with no disease est.xlsx
+results/simulations/base OM_age specific mixing/Scenario_ignore_disease_multinom_runs.csv
+results/simulations/base OM_age specific mixing/Scenario_ignore_disease_multinom_time.csv
+results/simulations/base OM_age specific mixing/Scenario_no_disease_multinom_runs.csv
+results/simulations/base OM_age specific mixing/Scenario_no_disease_multinom_time.csv
+results/simulations/base OM_age specific mixing/Scenario_no_disease_multinom_ver2_runs.csv
+results/simulations/base OM_age specific mixing/Scenario_no_disease_multinom_ver2_time.csv
+
+src/basa/
+src/old/
+src/simulation_analysis.R
+src/om_param_sensitivity.R
+src/sim_scenarios.R
+TO DO
